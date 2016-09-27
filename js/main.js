@@ -110,6 +110,7 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
 myApp.run(['$state','$rootScope','$timeout',function($state,$rootScope,$timeout){
     $rootScope.$on('$stateChangeStart',function(event,toState,toParams,fromState,fromParams,options){
         console.log('url router change');
+        $timeout.cancel($rootScope.yztimer);
         $timeout.cancel($rootScope.timer);
     })
 }]);

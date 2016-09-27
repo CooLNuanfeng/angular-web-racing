@@ -508,9 +508,400 @@ myApp.controller('lotterylistCtrl',['$scope','$http',function($scope,$http){
 
 
 //分盘的 押注 页
-myApp.controller('betshowCtrl',['$scope','$location',function($scope,$location){
+myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','$location','encrypt','localStorageService',function($scope,$rootScope,$http,$timeout,$filter,$state,$location,encrypt,localStorageService){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
+
+
+    //1-10 表格数据
+    $scope.table1 = [
+        //1
+        [
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'},
+            {key:'大',value:1.94,money:'aa'}
+        ],
+        //2
+        [
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'},
+            {key:'小',value:1.94,money:'aa'}
+        ],
+        //3
+        [
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'},
+            {key:'单',value:1.94,money:'aa'}
+        ],
+        //4
+        [
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'},
+            {key:'双',value:1.94,money:'aa'}
+        ],
+        //5
+        [
+            {key:'龙',value:1.94,money:'aa'},
+            {key:'龙',value:1.94,money:'aa'},
+            {key:'龙',value:1.94,money:'aa'},
+            {key:'龙',value:1.94,money:'aa'},
+            {key:'龙',value:1.94,money:'aa'},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''}
+        ],
+        //6
+        [
+            {key:'虎',value:1.94,money:'aa'},
+            {key:'虎',value:1.94,money:'aa'},
+            {key:'虎',value:1.94,money:'aa'},
+            {key:'虎',value:1.94,money:'aa'},
+            {key:'虎',value:1.94,money:'aa'},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''},
+            {key:'',value:'',money:''}
+        ],
+        //7
+        [
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'},
+            {key:1,value:9.7,money:'aa'}
+        ],
+        //8
+        [
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'},
+            {key:2,value:9.7,money:'aa'}
+        ],
+        //9
+        [
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'},
+            {key:3,value:9.7,money:'aa'}
+        ],
+        //10
+        [
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'},
+            {key:4,value:9.7,money:'aa'}
+        ],
+        //11
+        [
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'},
+            {key:5,value:9.7,money:'aa'}
+        ],
+        //12
+        [
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'},
+            {key:6,value:9.7,money:'aa'}
+        ],
+        //13
+        [
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'},
+            {key:7,value:9.7,money:'aa'}
+        ],
+        //14
+        [
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'},
+            {key:8,value:9.7,money:'aa'}
+        ],
+        //15
+        [
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'},
+            {key:9,value:9.7,money:'aa'}
+        ],
+        //16
+        [
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'},
+            {key:10,value:9.7,money:'aa'}
+        ],
+    ];
+
+
+    //冠亚组 表格数据
+    $scope.table2 = [
+        [{'key':'3','value':'41','money':'100'},{'key':'4','value':'41','money':'100'},{'key':'5','value':'21','money':'100'},{'key':'6','value':'21','money':'100'}],
+        [{'key':'7','value':'12','money':'100'},{'key':'8','value':'12','money':'100'},{'key':'9','value':'10.3','money':'100'},{'key':'10','value':'10.3','money':'100'}],
+        [{'key':'11','value':'8.3','money':'100'},{'key':'12','value':'10.3','money':'100'},{'key':'13','value':'10.3','money':'100'},{'key':'14','value':'12','money':'100'}],
+        [{'key':'15','value':'12','money':'100'},{'key':'16','value':'21','money':'100'},{'key':'17','value':'21','money':'100'},{'key':'18','value':'41','money':'100'}],
+        [{'key':'19','value':'12','money':'100'},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
+        [{'key':'冠亚大','value':'2','money':'100'},{'key':'冠亚小','value':'1.63','money':'100'},{'key':'冠亚单','value':'1.63','money':'100'},{'key':'冠亚双','value':'2','money':'100'}]
+    ];
+
+
+    //拖拽配置项 jQuery ui
+    $scope.sortableOptions = {
+        axis: "x"
+    };
+
+    //未登录先登录
+    if(!localStorageService.get('username')){
+        $state.go('login');
+        return;
+    }
+
+    //每次请求的 url
+    var urlObj = {
+        url : './data/data.php',
+        domain : 'http://120.26.75.31:8080',
+        path : '/data/data.php',
+        searchObj : {},
+        params : null
+    };
+
+    //修改比赛结果的url
+    var modifyUrl = 'http://192.168.5.109:8080/stake/result';
+
+    var modifyflag = true;
+
+    //全局配置控制
+    //var config = {
+        // racingNum : '',  //本次期号
+        // setInterval : 2000,  //多少时间请求一次
+        // url : 'http://192.168.5.109:8080/stake/config', //实时请求url
+        //yazhuUrl : 'http://192.168.5.109:8080/stake/invoke',  //押注url
+        //modifyUrl : 'http://192.168.5.109:8080/stake/result?racingNum=',
+        //newflag : true,  //是否为新一轮开始
+        //stage : false  //是否所处于修改结果阶段，控制重复渲染
+    //};
+
+    var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
+    localStorageService.set('Authorization',authoriza);
+    localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
+    console.log(authoriza,'set');
+
+
+    $timeout.cancel($rootScope.yztimer);
+    function action(){
+        $http({
+            url : urlObj.url,
+            method : 'get',
+            dataType : 'json',
+        }).then(function(res){
+            //console.log(res.data,'res');
+            var resData = res.data;
+
+            var json = resData.data;
+            $scope.racingNum = json.racingNum;
+            $scope.stopTime= $filter('toMinSec')(json.endStakeTime);
+            $scope.startTime = $filter('toMinSec')(json.startRacingTime);
+            $scope.todayIncome = json.todayIncome;
+            $scope.preResult = json.preResult;
+            $scope.nowStatus = json.nowStatus;
+            $scope.preRacingNum = json.preRacingNum;
+
+            // if(resData.result==='验签失败'){
+            //     $state.go('login');
+            //     return;
+            // }
+
+            if(resData.result==='ERROR'){
+                console.log('暂无比赛结果');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = true;
+                $scope.toastMessage = '暂无比赛结果';
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                return;
+            }
+            if(resData.result==='SUCCESS' && resData.data.stage == 4){ // 不可押注
+                console.log('不可押注');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+
+                return;
+            }
+
+            if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
+                console.log('计算最优结果中..');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = false;
+                $scope.mask = true;
+                $scope.computering = true;
+                $scope.modifying = false;
+                return;
+            }
+
+            if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
+                console.log('修改比赛结果');
+                // config.racingNum = resData.data.racingNum;
+                // $('.toast').hide();
+                // $('.table-box').addClass('disabled');
+                // $('.notice-info').html('现在可以修改比赛结果');
+                //modifyResult(resData.data.result);
+                // return;
+
+                $scope.tableDisabled = true;
+                $scope.toast = false;
+                $scope.mask = true;
+                $scope.computering = false;
+                $scope.modifying = true;
+                if(modifyflag){
+                    $scope.arrResult = resData.data.result;
+                    modifyflag = false;
+                }
+
+                $scope.modifyNotice = '';
+                return;
+
+            }
+
+
+            if(resData.result==='SUCCESS' && resData.data.stage == 1){          //押注阶段
+                console.log('押注时间');
+
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                $scope.tableDisabled = false;
+            }
+
+        },function(err){
+            console.log(err);
+        });
+        $rootScope.yztimer = $timeout(action,3000);
+    }
+    $rootScope.yztimer = $timeout(action,3000);
+
+
+
+    //修改比赛结果
+    $scope.modifyReslut = function(){
+        console.log($scope.arrResult,'drag end');
+        return;
+        $http({
+            url : modifyUrl,
+            method : 'put',
+            dataType : 'json',
+            data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
+        }).then(function(res){
+            console.log(res,'modifyReslut');
+        },function(err){
+            console.log(err);
+            $scope.modifyNotice = '请求失败请重试';
+        })
+    }
+
+
 }]);
 
 //机器人管理
