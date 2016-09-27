@@ -27,6 +27,39 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
         templateUrl : './templates/lottery/lotterylist.html',
         controller : 'lotterylistCtrl'
     })
+    //押注
+    .state('betshow',{
+        url : '/betshow',
+        templateUrl : './templates/betshow/betshow.html',
+    })
+    //机器人管理
+    .state('robot',{
+        url : '/robot',
+        templateUrl : './templates/robot/robot.html',
+    }).state('robot.status',{
+        url : '/status',
+        templateUrl : './templates/robot/status.html'
+    }).state('robot.odds',{
+        url : '/odds',
+        templateUrl : './templates/robot/odds.html'
+    })
+    //玩家管理
+    .state('player',{
+        url : '/player',
+        templateUrl : './templates/player/player.html',
+    }).state('player.report',{
+        url : '/report',
+        templateUrl : './templates/player/playerport.html'
+    }).state('player.list',{
+        url : '/list',
+        templateUrl : './templates/player/playerlist.html'
+    }).state('playerDetail',{
+        url : '/playerDetail',
+        templateUrl : './templates/player/playerdetail.html'
+    }).state('reportDetail',{
+        url : '/reportDetail',
+        templateUrl : './templates/bet/betDetail.html'
+    })
     //积分管理
     .state('integral',{
         url : '/integral',
@@ -45,9 +78,6 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
     .state('profitlose',{
         url : '/profitlose',
         templateUrl : './templates/profitlose/profitlose.html',
-    }).state('profitlose.all',{
-        url : '/profitloseAll',
-        templateUrl : './templates/profitlose/all.html',
     }).state('profitlose.other',{
         url : '/profitloseOther',
         templateUrl : './templates/profitlose/other.html',
@@ -56,9 +86,6 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
     .state('bet',{
         url : '/bet',
         templateUrl : './templates/bet/bet.html',
-    }).state('bet.allbet',{
-        url : '/allBet',
-        templateUrl : './templates/bet/all.html',
     }).state('bet.otherbet',{
         url : '/otherBet',
         templateUrl : './templates/bet/other.html',
@@ -66,7 +93,7 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
         url : '/betDetail/:type&:item1&:item2',
         templateUrl : './templates/bet/betDetail.html'
     })
-    //用户管理
+    //个人信息管理
     .state('users',{
         url : '/users',
         templateUrl : './templates/users/users.html',

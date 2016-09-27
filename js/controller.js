@@ -507,118 +507,30 @@ myApp.controller('lotterylistCtrl',['$scope','$http',function($scope,$http){
 
 
 
-//积分管理
-myApp.controller('integralCtrl',['$scope','$location',function($scope,$location){
+//分盘的 押注 页
+myApp.controller('betshowCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('applyCtrl',['$scope','$sanitize',function($scope,$sanitize){
-    $scope.text = "分盘申请上下分列表";
-
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'ok'},
-        {'code':2,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'danger'},
-        {'code':3,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'cancel'},
-    ];
-
-    //分页
-    $scope.currentPage = 30;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
-    $scope.goPage = function(page){
-        console.log(page);
-    };
-
-    $scope.toRight = function(item) {
-        console.log(item);
-        $scope.modalContent = '';
-        switch (item) {
-            case 'ok':
-                $scope.modalTitle = '批准';
-                $scope.modalStatus = 'ok';
-                break;
-            case 'danger':
-                $scope.modalTitle = '拒绝';
-                $scope.modalStatus = 'danger';
-                break;
-            case 'cancel':
-                $scope.modalTitle = '取消';
-                $scope.modalStatus = 'cancel';
-                break;
-        }
-    };
-
-    //确认发送数据
-    $scope.confirm = function(status) {
-        console.log(status,$scope.modalContent,'modal');
-    };
-
-}]).controller('listCtrl',['$scope',function($scope){
-    $scope.text = "分盘积分列表";
-
-    //分页
-    $scope.currentPage = 30;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
-    $scope.goPage = function(page){
-        console.log(page);
-    };
-
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd'},
-        {'code':2,'aa':'kk','bb':'bb','cc':'cc','dd':'dd'},
-        {'code':3,'aa':'oo','bb':'bb','cc':'cc','dd':'dd'},
-    ];
-
-    //搜索
-    $scope.search = function(){
-        console.log('search list');
-        console.log($scope.searchName,$scope.searchId);
-    }
-
-    //弹层
-    $scope.toModal = function(item){
-        $scope.money = '';
-        if(item == 'add'){
-            $scope.modalTitle = '加积分';
-            $scope.modalStatus = 'add';
-        }
-        if(item == 'reduce'){
-            $scope.modalTitle = '减积分';
-            $scope.modalStatus = 'reduce';
-        }
-    }
-    // 弹层确定
-    $scope.confirm = function(status){
-        console.log(status, $scope.money);
-    }
-}]);
-//查看积分详情
-myApp.controller('integralDetailCtrl',['$scope','$stateParams','$sanitize',function($scope,$stateParams,$sanitize){
-    //console.log($stateParams);
-
-    $scope.title = $stateParams.item1+'==='+ $stateParams.item2;
-
-    $scope.tableData = [
-        {'code':1,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]},
-        {'code':2,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]}
-    ];
-
-    //分页
-    $scope.currentPage = 30;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
-    $scope.goPage = function(page){
-        console.log(page);
-    };
 }]);
 
-
-//盈亏报表
-myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
+//机器人管理
+myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('allPlCtrl',['$scope',function($scope){
-    $scope.text = "总体盈亏报表";
+}]).controller('robotStatusCtrl',['$scope',function($scope){
+    $scope.text = "机器人状态管理";
+}]).controller('robotOddsCtrl',['$scope',function($scope){
+    $scope.text = "机器人赔率管理";
+}]);
+//玩家管理
+myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('playerlistCtrl',['$scope',function($scope){
+    $scope.text = "玩家列表管理";
+}]).controller('playerportCtrl',['$scope',function($scope){
+    $scope.text = "玩家报表管理";
+
     $scope.selectActive = 'byDate';
 
     $scope.tableData = [
@@ -674,7 +586,106 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
         }
     };
 
+}]).controller('playerDetailCtrl',['$scope',function($scope){
 
+}]);
+
+
+//积分管理
+myApp.controller('integralCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('applyCtrl',['$scope','$sanitize',function($scope,$sanitize){
+    $scope.text = "申请积分";
+    $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
+
+    //确认发送数据
+    $scope.confirm = function() {
+        console.log($scope.applyText,$scope.money);
+    };
+
+    // $scope.tableData = [
+    //     {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'ok'},
+    //     {'code':2,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'danger'},
+    //     {'code':3,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'cancel'},
+    // ];
+    //
+    // //分页
+    // $scope.currentPage = 30;
+    // //$scope.pageSize = 5;  //每页显示多少
+    // $scope.total = 100;
+    // $scope.goPage = function(page){
+    //     console.log(page);
+    // };
+    //
+    // $scope.toRight = function(item) {
+    //     console.log(item);
+    //     $scope.modalContent = '';
+    //     switch (item) {
+    //         case 'ok':
+    //             $scope.modalTitle = '批准';
+    //             $scope.modalStatus = 'ok';
+    //             break;
+    //         case 'danger':
+    //             $scope.modalTitle = '拒绝';
+    //             $scope.modalStatus = 'danger';
+    //             break;
+    //         case 'cancel':
+    //             $scope.modalTitle = '取消';
+    //             $scope.modalStatus = 'cancel';
+    //             break;
+    //     }
+    // };
+
+
+
+}]).controller('listCtrl',['$scope',function($scope){
+    $scope.text = "操作记录";
+    $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
+
+
+    //分页
+    $scope.currentPage = 30;
+    //$scope.pageSize = 5;  //每页显示多少
+    $scope.total = 100;
+    $scope.goPage = function(page){
+        console.log(page);
+    };
+
+    $scope.tableData = [
+        {'code':1,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+        {'code':2,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+    ];
+
+
+}]);
+
+
+//查看积分详情
+// myApp.controller('integralDetailCtrl',['$scope','$stateParams','$sanitize',function($scope,$stateParams,$sanitize){
+//     //console.log($stateParams);
+//
+//     $scope.title = $stateParams.item1+'==='+ $stateParams.item2;
+//
+//     $scope.tableData = [
+//         {'code':1,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+//         {'code':2,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+//     ];
+//
+//     //分页
+//     $scope.currentPage = 30;
+//     //$scope.pageSize = 5;  //每页显示多少
+//     $scope.total = 100;
+//     $scope.goPage = function(page){
+//         console.log(page);
+//     };
+// }]);
+
+
+//盈亏报表
+myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
 }]).controller('otherPlCtrl',['$scope',function($scope){
     $scope.text = "分盘盈亏报表";
     $scope.selectActive = 'byDate';
@@ -738,63 +749,6 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('allBetCtrl',['$scope',function($scope){
-    $scope.text = "总体押注报表";
-    $scope.selectActive = 'byDate';
-
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':'bb','cc':'cc'},
-        {'code':2,'aa':'kk','bb':'bb','cc':'cc'},
-    ];
-
-    // $scope.startTime = '2016-06-12';
-    // $scope.endTime = '2016-08-12';
-    // $scope.issue = '1232454';
-    $scope.searchByDate = function() {
-        console.log('search by date');
-        console.log($scope.startTime,$scope.endTime);
-    };
-
-    $scope.searchByIssue = function() {
-        console.log('search by issue');
-        console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
-    }
-
-
-    //分页
-    $scope.currentPage = 1;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
-    $scope.goPage = function(page){
-        console.log(page);
-    };
-    // 按日期 与 按 期号 切换
-    $scope.reRender = function(item){
-        if(item == 'date'){ //按日期
-            $scope.selectActive = 'byDate';
-
-
-            //分页
-            $scope.currentPage = 1;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 70;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
-        }
-        if(item == 'issue'){ //按期号
-            $scope.selectActive = 'byIssue';
-
-            //分页
-            $scope.currentPage = 30;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 100;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
-        }
-    };
-
 }]).controller('otherBetCtrl',['$scope',function($scope){
     $scope.text = "分盘押注报表";
 
@@ -853,14 +807,11 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
         }
     };
 
-}]).controller('betDetailCtrl',['$scope','$stateParams',function($scope,$stateParams){
-    console.log($stateParams.type);
-    $scope.type = $stateParams.type;
-    $scope.dateIssue = $stateParams.item1;
-    // ....
+}]).controller('betDetailCtrl',['$scope',function($scope){
+
+    $scope.dateIssue = 'sfsdfds';
     $scope.lotteryRestut = '12445555';
     $scope.money = 1000;
-    $scope.number = 34;
     $scope.fitloss = 23;
     $scope.allfitloss = 43;
 

@@ -7,18 +7,6 @@
         </div>
     </div>
     <div class="tab-box container-fluid" ng-show='selectActive=="byDate"'>
-        <div class='row chose-box'>
-            <div class="col-md-4 form-inline">
-                <div class="form-group">
-                  <label class='control-label'>分盘名称: </label>
-                  <select class="form-control" ng-model='selectName'>
-                      <options>1</options>
-                      <options>2</options>
-                      <options>3</options>
-                  </select>
-                </div>
-            </div>
-        </div>
         <div class="row chose-box">
             <div class="col-md-4 form-inline">
                 <div class="form-group" moment-picker="startTime" locale="zh-cn" start-view="month" format="YYYY-MM-DD" today='true'  max-date="endTime" >
@@ -83,18 +71,6 @@
         </div>
     </div>
     <div class="tab-box container-fluid" ng-show='selectActive=="byIssue"'>
-        <div class='row chose-box'>
-            <div class="col-md-4 form-inline">
-                <div class="form-group">
-                  <label class='control-label'>分盘名称: </label>
-                  <select class="form-control" ng-model='selectName'>
-                      <options>1</options>
-                      <options>2</options>
-                      <options>3</options>
-                  </select>
-                </div>
-            </div>
-        </div>
         <div class="row chose-box">
             <div class="col-md-4 form-inline">
                 <div class="form-group" moment-picker="startTimeIssue" locale="zh-cn" start-view="month" format="YYYY-MM-DD" today='true'  max-date="endTimeIssue" >

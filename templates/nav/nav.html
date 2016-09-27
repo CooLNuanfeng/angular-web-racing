@@ -7,7 +7,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">总盘系统管理</a>
+          <a class="navbar-brand" href="#">分盘系统管理</a>
         </div>
         <div class="collapse navbar-collapse" id="navList">
           <ul class="nav navbar-nav">
@@ -18,10 +18,13 @@
                   <li ng-class="{'active': realtimeSelsect == 'realtimeListClass'}"><a href="#/lottery/list">开奖列表</a></li>
                 </ul>
             </li>
+            <li ng-class="{'active': nowSelsect == 'betshowClass'}"><a href="#/betshow">押注</a></li>
+            <li ng-class="{'active': nowSelsect == 'robotClass'}"><a href="#/robot/status">机器人管理</a></li>
+            <li ng-class="{'active': nowSelsect == 'playerClass'}"><a href="#/player/list">玩家管理</a></li>
+            <li ng-class="{'active': nowSelsect == 'betClass'}"><a href="#/bet/otherBet">押注报表</a></li>
             <li ng-class="{'active': nowSelsect == 'integralClass'}"><a href="#/integral/apply">积分管理</a></li>
-            <li ng-class="{'active': nowSelsect == 'profitClass'}"><a href="#/profitlose/profitloseAll">盈亏报表</a></li>
-            <li ng-class="{'active': nowSelsect == 'betClass'}"><a href="#/bet/allBet">押注报表</a></li>
-            <li ng-class="{'active': nowSelsect == 'userClass'}"><a href="#/users/allUser">用户管理</a></li>
+            <li ng-class="{'active': nowSelsect == 'profitClass'}"><a href="#/profitlose/profitloseOther">盈亏报表</a></li>
+            <li ng-class="{'active': nowSelsect == 'userClass'}"><a href="#/users/allUser">个人信息管理</a></li>
           </ul>
           <p ng-controller="userLoginedCtrl" class="navbar-text navbar-right"><span>{{username}}</span> 你好,   <a href="javascript:;" class="navbar-link" ng-click='logout()'>退出</a></p>
         </div>
