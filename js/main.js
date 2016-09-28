@@ -100,9 +100,6 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
     }).state('users.all',{
         url : '/allUser',
         templateUrl : './templates/users/all.html',
-    }).state('users.other',{
-        url : '/otherUser',
-        templateUrl : './templates/users/other.html',
     })
 
 }]);

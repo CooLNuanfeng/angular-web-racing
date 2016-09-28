@@ -508,246 +508,65 @@ myApp.controller('lotterylistCtrl',['$scope','$http',function($scope,$http){
 
 
 //分盘的 押注 页
-myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','$location','encrypt','localStorageService',function($scope,$rootScope,$http,$timeout,$filter,$state,$location,encrypt,localStorageService){
-    //页面一进来控制 class active
-    $scope.selectClass = $location.path().substr(1);
-
-
-    //1-10 表格数据
-    $scope.table1 = [
-        //1
-        [
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'}
-        ],
-        //2
-        [
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'}
-        ],
-        //3
-        [
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'}
-        ],
-        //4
-        [
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'}
-        ],
-        //5
-        [
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //6
-        [
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //7
-        [
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'}
-        ],
-        //8
-        [
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'}
-        ],
-        //9
-        [
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'}
-        ],
-        //10
-        [
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'}
-        ],
-        //11
-        [
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'}
-        ],
-        //12
-        [
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'}
-        ],
-        //13
-        [
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'}
-        ],
-        //14
-        [
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'}
-        ],
-        //15
-        [
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'}
-        ],
-        //16
-        [
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'}
-        ],
-    ];
-
-
-    //冠亚组 表格数据
-    $scope.table2 = [
-        [{'key':'3','value':'41','money':'100'},{'key':'4','value':'41','money':'100'},{'key':'5','value':'21','money':'100'},{'key':'6','value':'21','money':'100'}],
-        [{'key':'7','value':'12','money':'100'},{'key':'8','value':'12','money':'100'},{'key':'9','value':'10.3','money':'100'},{'key':'10','value':'10.3','money':'100'}],
-        [{'key':'11','value':'8.3','money':'100'},{'key':'12','value':'10.3','money':'100'},{'key':'13','value':'10.3','money':'100'},{'key':'14','value':'12','money':'100'}],
-        [{'key':'15','value':'12','money':'100'},{'key':'16','value':'21','money':'100'},{'key':'17','value':'21','money':'100'},{'key':'18','value':'41','money':'100'}],
-        [{'key':'19','value':'12','money':'100'},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
-        [{'key':'冠亚大','value':'2','money':'100'},{'key':'冠亚小','value':'1.63','money':'100'},{'key':'冠亚单','value':'1.63','money':'100'},{'key':'冠亚双','value':'2','money':'100'}]
-    ];
-
-
-    //拖拽配置项 jQuery ui
-    $scope.sortableOptions = {
-        axis: "x"
-    };
-
+myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','$location','encrypt','localStorageService','baseData','initSendData','makeSendData',function($scope,$rootScope,$http,$timeout,$filter,$state,$location,encrypt,localStorageService,baseData,initSendData,makeSendData){
     //未登录先登录
     if(!localStorageService.get('username')){
         $state.go('login');
         return;
     }
 
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+
+    //console.log(baseData);
+    $scope.sendData = initSendData.init(baseData.sendData);
+    $scope.tableOne = baseData.tab1;
+    $scope.tableTwo = baseData.tab2;
+    $scope.tableThree = baseData.tab3;
+
+    //初始状态展示
+    $scope.nowTab = 'one';
+    $scope.selectedObj = {}; //所选的 td 组成的 对象
+    //$scope.selectedClass = false;
+
+    //选项切换
+    $scope.tabChange = function(tab){
+        console.log('nowtab',tab);
+        $scope.nowTab = tab;
+    };
+    //确认押注
+    $scope.confim = function(){
+        var keyCode = ['big','small','odd','even']; //大小单双
+        var keyCodeUp = ['firstUp','secondUp','thirdUp','fourthUp','fifthUp'];//龙
+        var keyCodeDown = ['firstDowm','secondDowm','thirdDowm','fourthDowm','fifthDowm'];//虎
+        var sortArr = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+        var re = /^[0-9]*[1-9][0-9]*$/;
+        if(!$scope.money || !re.test($scope.money)){
+            alert('请输入合法金额，正整数');
+            return;
+        }
+        if(angular.equals({},$scope.selectedObj)){
+            alert('您还没有押注');
+            return;
+        }
+        var params = makeSendData.makeParams($scope.sendData,$scope.selectedObj,$scope.money)
+        console.log(params);
+    };
+
+    //重置押注
+    $scope.reset = function(){
+        console.log('reset 押注');
+        $scope.money = '';
+        //$scope.selectedClass = false; // 不起作用
+        $scope.selectedObj = {};
+        $scope.sendData = initSendData.init(baseData.sendData);
+    };
+
+
+    //拖拽配置项 jQuery ui
+    $scope.sortableOptions = {
+        axis: "x"
+    };
     //每次请求的 url
     var urlObj = {
         url : './data/data.php',
@@ -756,28 +575,14 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
         searchObj : {},
         params : null
     };
-
     //修改比赛结果的url
     var modifyUrl = 'http://192.168.5.109:8080/stake/result';
-
     var modifyflag = true;
-
-    //全局配置控制
-    //var config = {
-        // racingNum : '',  //本次期号
-        // setInterval : 2000,  //多少时间请求一次
-        // url : 'http://192.168.5.109:8080/stake/config', //实时请求url
-        //yazhuUrl : 'http://192.168.5.109:8080/stake/invoke',  //押注url
-        //modifyUrl : 'http://192.168.5.109:8080/stake/result?racingNum=',
-        //newflag : true,  //是否为新一轮开始
-        //stage : false  //是否所处于修改结果阶段，控制重复渲染
-    //};
 
     var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
     localStorageService.set('Authorization',authoriza);
     localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
     console.log(authoriza,'set');
-
 
     $timeout.cancel($rootScope.yztimer);
     function action(){
@@ -919,6 +724,15 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     $scope.selectClass = $location.path().substr(1);
 }]).controller('playerlistCtrl',['$scope',function($scope){
     $scope.text = "玩家列表管理";
+
+    //分页
+    $scope.currentPage = 1;
+    //$scope.pageSize = 5;  //每页显示多少
+    $scope.total = 100;
+    $scope.goPage = function(page){
+        console.log(page);
+    };
+
 }]).controller('playerportCtrl',['$scope',function($scope){
     $scope.text = "玩家报表管理";
 
@@ -1440,108 +1254,13 @@ myApp.controller('userCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
 }]).controller('allUserCtrl',['$scope',function($scope){
-    $scope.text = "总盘用户管理";
+    $scope.text = "查看修改个人信息";
+
+    $scope.nickname = 'blue';
+    $scope.password = '123';
 
     $scope.modify = function(){
-        $scope.operation = 'modify';
-        $scope.modalTitle = '修改用户信息';
-        $scope.nickname = '';
-        $scope.password = '';
-        $scope.repeatPwd = '';
+        console.log($scope.nickname,$scope.password);
     }
 
-    $scope.delete = function(){
-        $scope.operation = 'delete';
-        $scope.modalTitle = '删除用户';
-    }
-
-    $scope.addUser = function(){
-        $scope.operation = 'add';
-        $scope.modalTitle = '添加新用户';
-        $scope.nickname = '';
-        $scope.password = '';
-        $scope.repeatPwd = '';
-        $scope.username = '';
-    }
-
-
-    $scope.confirm = function(){
-        if($scope.operation == 'modify'){
-            console.log('modify');
-            console.log($scope.nickname);
-            console.log($scope.password);
-            console.log($scope.repeatPwd);
-        }
-        if($scope.operation == 'delete'){
-            console.log('delete');
-        }
-        if($scope.operation == 'add'){
-            console.log('adduser');
-            console.log($scope.nickname);
-            console.log($scope.username);
-            console.log($scope.password);
-            console.log($scope.repeatPwd);
-        }
-    }
-
-
-
-}]).controller('otherUserCtrl',['$scope',function($scope){
-    $scope.text = "分盘用户管理";
-
-    $scope.search = function(){
-        console.log($scope.searchName,$scope.searchId);
-    }
-
-    $scope.modify = function(){
-        $scope.operation = 'modify';
-        $scope.modalTitle = '修改用户信息';
-        $scope.nickname = '';
-    }
-
-    $scope.delete = function(){
-        $scope.operation = 'delete';
-        $scope.modalTitle = '删除用户';
-    }
-
-    $scope.addUser = function(){
-        $scope.operation = 'add';
-        $scope.modalTitle = '添加新用户';
-        $scope.clientsn = '';
-        $scope.expire = '';
-    }
-
-    $scope.setRobot = function(){
-        $scope.operation = 'setRobot';
-        $scope.modalTitle = '设置机器人到期时间';
-        $scope.expire = '';
-    }
-
-    $scope.addRobot = function(){
-        $scope.operation = 'addRobot';
-        $scope.modalTitle = '添加机器人';
-        $scope.expire = '';
-    }
-
-
-    $scope.confirm = function(){
-        if($scope.operation == 'modify'){
-            console.log('modify');
-            console.log($scope.nickname);
-        }
-        if($scope.operation == 'delete'){
-            console.log('delete');
-        }
-        if($scope.operation == 'add'){
-            console.log('adduser');
-            console.log($scope.clientsn);
-            console.log($scope.expire);
-        }
-        if($scope.operation == 'addRobot'){
-            console.log('addRobot',$scope.expire);
-        }
-        if($scope.operation == 'setRobot'){
-            console.log('setRobot',$scope.expire);
-        }
-    }
-}]);
+}])

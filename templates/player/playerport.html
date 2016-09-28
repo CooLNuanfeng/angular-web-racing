@@ -9,6 +9,14 @@
     <div class="tab-box container-fluid" ng-show='selectActive=="byDate"'>
         <div class="row chose-box">
             <div class="col-md-4 form-inline">
+                <div class="form-group">
+                  <label class='control-label'>用户昵称: </label>
+                  <input type="text" class="form-control" ng-model='nickname' placeholder="用户昵称">
+                </div>
+            </div>
+        </div>
+        <div class="row chose-box">
+            <div class="col-md-4 form-inline">
                 <div class="form-group" moment-picker="startTime" locale="zh-cn" start-view="month" format="YYYY-MM-DD" today='true'  max-date="endTime" >
                       <label class="control-label">开始时间: </label>
                       <div class="input-group">
@@ -26,15 +34,7 @@
                   </div>
                 </div>
             </div>
-        </div>
-        <div class="row chose-box">
-            <div class="col-md-4 form-inline">
-                <div class="form-group">
-                  <label class='control-label'>用户昵称: </label>
-                  <input type="text" class="form-control" ng-model='nickname' placeholder="用户昵称">
-                </div>
-            </div>
-            <div class="col-md-4 col-md-offset-4">
+            <div class="col-md-4">
                 <button class="btn btn-primary" ng-click="searchByDate();">搜索</button>
             </div>
         </div>
@@ -61,6 +61,20 @@
     <div class="tab-box container-fluid" ng-show='selectActive=="byIssue"'>
         <div class="row chose-box">
             <div class="col-md-4 form-inline">
+                <div class="form-group">
+                  <label class='control-label'>用户昵称: </label>
+                  <input type="text" class="form-control" ng-model='nickname' placeholder="用户昵称">
+                </div>
+            </div>
+            <div class="col-md-4 form-inline">
+                <div class="form-group">
+                  <label class='control-label'>搜索期号: </label>
+                  <input type="text" class="form-control" ng-model='issue' placeholder="期号">
+                </div>
+            </div>
+        </div>
+        <div class="row chose-box">
+            <div class="col-md-4 form-inline">
                 <div class="form-group" moment-picker="startTimeIssue" locale="zh-cn" start-view="month" format="YYYY-MM-DD" today='true'  max-date="endTimeIssue" >
                       <label class="control-label">开始时间: </label>
                       <div class="input-group">
@@ -78,15 +92,7 @@
                   </div>
                 </div>
             </div>
-        </div>
-        <div class="row chose-box">
-            <div class="col-md-4 form-inline">
-                <div class="form-group">
-                  <label class='control-label'>用户昵称: </label>
-                  <input type="text" class="form-control" ng-model='nickname' placeholder="用户昵称">
-                </div>
-            </div>
-            <div class="col-md-4 col-md-offset-4">
+            <div class="col-md-4">
                 <button class="btn btn-primary" ng-click="searchByIssue();">搜索</button>
             </div>
         </div>
