@@ -78,6 +78,10 @@ table tbody .selected { background-color: #dff0d8; }
 .historyBody { padding: 10px 40px 200px; }
 .historyBody table tr td { text-align: center; }
 
+.nick-list { width: 100%; position: absolute; z-index: 999; box-sizing: border-box; padding-left: 64px; }
+.nick-list li { padding: 0 8px; list-style: none; height: 35px; line-height: 35px; border: 1px solid #ccc; border-top: 0; background: #fff; font-size: 14px; color: #666; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nick-list li:hover { background: #f3f3f3; }
+
 .chose-box { margin-top: 10px; margin-bottom: 20px; }
 
 .red { color: red; }

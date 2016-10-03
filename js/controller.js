@@ -36,33 +36,35 @@ myApp.controller('loginCtrl',['$scope','$http','$state','$rootScope','localStora
     //登录请求获取 Accesskey 和 secretKey
     $scope.loginSubmit = function(){
         var params = {
-            username : $scope.username,
-            password : $scope.password,
-            remember : $scope.remember
+            userName : $scope.username,
+            password : $scope.password
         };
         $http({
-            url : './data/loginvip.php',
+            url : 'http://60.205.163.65:8080/user/web/login',
             method : 'post',
             headers : {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                'Content-Type': 'application/json;charset=utf-8;'
             },
-            data: $.param(params)
+            data: params
         }).then(function(res){
-            console.log(res);
+            console.log(res,'分盘用户登录');
 
-            var userType = true; // 用户的级别
-
-            $rootScope.username = $scope.username;
-            if(localStorageService.isSupported) {
-                localStorageService.set('Accesskey',res.Accesskey);
-                localStorageService.set('secretKey',res.secretKey);
-                localStorageService.set('username',$scope.username);
-                localStorageService.set('userType',userType);
+            var data = res.data;
+            if(data.result == 'SUCCESS'){
+                //var userType = true; // 用户的级别
+                $rootScope.username = $scope.username;
+                if(localStorageService.isSupported) {
+                    localStorageService.set('Accesskey',data.data.accessKey);
+                    localStorageService.set('secretKey',data.data.securityKey);
+                    localStorageService.set('username',$scope.username);
+                    //localStorageService.set('userType',userType);
+                }else{
+                    alert('您的浏览器版本太低，请升级高版本浏览器');
+                }
+                $state.go('realtime');
             }else{
-                alert('您的浏览器版本太低，请升级高版本浏览器');
+                alert('用户名或密码有误请重试');
             }
-
-            $state.go('realtime');
 
 
         },function(err){
@@ -733,8 +735,9 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         console.log(page);
     };
 
-}]).controller('playerportCtrl',['$scope',function($scope){
+}]).controller('playerportCtrl',['$scope','$timeout',function($scope,$timeout){
     $scope.text = "玩家报表管理";
+    var timer = null; //控制搜索
 
     $scope.selectActive = 'byDate';
 
@@ -746,6 +749,15 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     // $scope.startTime = '2016-06-12';
     // $scope.endTime = '2016-08-12';
     // $scope.issue = '1232454';
+
+
+    $scope.nickSearch = function(event){
+        $timeout.cancel(timer);
+        timer = $timeout(function(){
+            console.log(event.keyCode,$scope.nickname);
+        },500);
+    }
+
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
