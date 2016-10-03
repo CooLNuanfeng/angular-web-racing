@@ -858,8 +858,8 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     };
 
     $scope.tableData = [
-        {'code':1,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]},
-        {'code':2,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+        {'code':1,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+        {'code':2,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]}
     ];
 
 

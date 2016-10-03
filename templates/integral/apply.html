@@ -51,12 +51,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='row in tableData'>
-                        <td ng-repeat='item in row' ng-switch on="item">
-                            <a class='btn btn-sm btn-success' ng-switch-when='ok' ng-click='toRight("ok")' data-toggle="modal" data-target="#myModal">批准</a>
-                            <a class='btn btn-sm btn-danger' ng-switch-when='danger' ng-click='toRight("danger")' data-toggle="modal" data-target="#myModal">拒绝</a>
-                            <a class='btn btn-sm btn-default' ng-switch-when='cancel' ng-click='toRight("cancel")' data-toggle="modal" data-target="#myModal">取消</a>
-                            <span ng-switch-default>{{item}}</span>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <a class='btn btn-sm btn-default'>取消</a>
                         </td>
                     </tr>
                 </tbody>
