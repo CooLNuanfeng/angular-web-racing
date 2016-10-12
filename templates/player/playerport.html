@@ -11,12 +11,9 @@
             <div class="col-md-4 form-inline">
                 <div class="form-group" style="position:relative;">
                   <label class='control-label'>用户昵称: </label>
-                  <input type="text" class="form-control" ng-model='nickname' ng-keyup="nickSearch($event);" placeholder="用户昵称">
-                  <ul class="nick-list">
-                      <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-                      <li>aaa</li>
-                      <li>aaa</li>
-                      <li>aaa</li>
+                  <input type="text" class="form-control" ng-model='nickname' ng-keyup="nickSearch($event);" placeholder="用户昵称" ng-blur="nicklist=false">
+                  <ul class="nick-list" ng-show="nicklist">
+                      <li ng-repeat="item in listItems track by $index" ng-click="listClick(item)">{{item}}</li>
                   </ul>
                 </div>
             </div>
@@ -67,9 +64,12 @@
     <div class="tab-box container-fluid" ng-show='selectActive=="byIssue"'>
         <div class="row chose-box">
             <div class="col-md-4 form-inline">
-                <div class="form-group">
+                <div class="form-group" style="position:relative;">
                   <label class='control-label'>用户昵称: </label>
-                  <input type="text" class="form-control" ng-model='nickname' placeholder="用户昵称">
+                  <input type="text" class="form-control" ng-model='nickname' ng-keyup="nickSearch($event);" placeholder="用户昵称" ng-blur="nicklist=false">
+                  <ul class="nick-list" ng-show="nicklist">
+                      <li ng-repeat="item in listItems track by $index" ng-click="listClick(item)">{{item}}</li>
+                  </ul>
                 </div>
             </div>
             <div class="col-md-4 form-inline">

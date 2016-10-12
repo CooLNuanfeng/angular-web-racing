@@ -64,10 +64,21 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <a class="btn btn-primary" ui-sref="betDetail({type:'byIssue',id:2})">查看详情</a>
+                        </td>
+                    </tr>
                     <tr ng-repeat='row in tableData'>
                         <td ng-repeat="item in row"  ng-bind-html='item | splitArrFilter'></td>
                         <td>
-                            <a class="btn btn-primary" ui-sref="betDetail({type:'byDate',item1:row.code,item2:row.aa})">查看详情</a>
+                            <a class="btn btn-primary" ui-sref="betDetail({type:'byDate',id:row.id})">查看详情</a>
                         </td>
                     </tr>
                 </tbody>
@@ -140,10 +151,21 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <a class="btn btn-primary" ui-sref="betDetail({type:'byIssue',id:2})">查看详情</a>
+                        </td>
+                    </tr>
                     <tr ng-repeat='row in tableData'>
                         <td ng-repeat="item in row"  ng-bind-html='item | splitArrFilter'></td>
                         <td>
-                            <a class="btn btn-primary" ui-sref="betDetail({type:'byIssue',item1:row.code,item2:row.aa})">查看详情</a>
+                            <a class="btn btn-primary" ui-sref="betDetail({type:'byIssue',id:row.id})">查看详情</a>
                         </td>
                     </tr>
                 </tbody>

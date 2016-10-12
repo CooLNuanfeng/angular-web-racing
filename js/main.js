@@ -54,7 +54,7 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
         url : '/list',
         templateUrl : './templates/player/playerlist.html'
     }).state('playerDetail',{
-        url : '/playerDetail',
+        url : '/playerDetail/:memberId',
         templateUrl : './templates/player/playerdetail.html'
     }).state('reportDetail',{
         url : '/reportDetail',
@@ -90,7 +90,7 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
         url : '/otherBet',
         templateUrl : './templates/bet/other.html',
     }).state('betDetail',{
-        url : '/betDetail/:type&:item1&:item2',
+        url : '/betDetail/:type&:id',
         templateUrl : './templates/bet/betDetail.html'
     })
     //个人信息管理
@@ -109,5 +109,10 @@ myApp.run(['$state','$rootScope','$timeout',function($state,$rootScope,$timeout)
         console.log('url router change');
         $timeout.cancel($rootScope.yztimer);
         $timeout.cancel($rootScope.timer);
+        // if(toState.name=='login')return;// 如果是进入登录界面则允许
+        // if(!$rootScope.username){
+    	// 	event.preventDefault();// 取消默认跳转行为
+    	// 	$state.go("login");//跳转到登录界面
+    	// }
     })
 }]);

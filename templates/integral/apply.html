@@ -8,12 +8,7 @@
     </div>
     <div class="row chose-box">
         <div class="col-md-2">
-            <select class="form-control">
-              <option selected value="1">申请中</option>
-              <option value="2">已批准</option>
-              <option value="3">已拒绝</option>
-              <option value="4">已取消</option>
-            </select>
+            <select class="form-control" ng-model="selection" ng-options="item.value for item in selectOptions"  ng-change="selectChange()"></select>
         </div>
         <div class="col-md-4 form-inline">
             <div class="form-group" moment-picker="startTime" locale="zh-cn" start-view="month" format="YYYY-MM-DD" today='true'  max-date="endTime" >
@@ -58,7 +53,17 @@
                         <td></td>
                         <td></td>
                         <td>
-                            <a class='btn btn-sm btn-default'>取消</a>
+                            <a class='btn btn-sm btn-default' href="javascript:;" ng-click="cancel(row.id)">取消</a>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="row in tableData track by $index">
+                        <td>{{$index+1}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
+                        <td>
+                            <a class='btn btn-sm btn-default' href="javascript:;" ng-click="cancel(row.id)">取消</a>
                         </td>
                     </tr>
                 </tbody>

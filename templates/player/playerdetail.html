@@ -34,22 +34,22 @@
         <div class="row chose-box">
             <div class="col-md-2">
                 <div class="checkbox">
-                    <label><input type="radio" name="type" value=""> 上分</label>
+                    <label><input type="radio" name="type" value="1" ng-model="type"> 上分</label>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="checkbox">
-                    <label><input type="radio" name="type" value=""> 下分</label>
+                    <label><input type="radio" name="type" value="2" ng-model="type"> 下分</label>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="checkbox">
-                    <label><input type="radio" name="type" value=""> 下注</label>
+                    <label><input type="radio" name="type" value="3" ng-model="type"> 下注</label>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="checkbox">
-                    <label><input type="radio" name="type" value=""> 开奖</label>
+                    <label><input type="radio" name="type" value="4" ng-model="type"> 开奖</label>
                 </div>
             </div>
             <div class="col-md-2">
@@ -68,12 +68,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                    <tr ng-repeat="row in tableData track by $index">
+                        <td>{{$index+1}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
+                        <td>{{row.}}</td>
                     </tr>
                 </tbody>
             </table>

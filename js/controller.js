@@ -307,23 +307,22 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
     };
 
     //未登录先登录
-    if(!localStorageService.get('username')){
-        $state.go('login');
-        return;
-    }
+    // if(!localStorageService.get('username')){
+    //     $state.go('login');
+    //     return;
+    // }
 
-    //每次请求的 url
-    var urlObj = {
-        url : './data/data.php',
-        domain : 'http://120.26.75.31:8080',
-        path : '/data/data.php',
-        searchObj : {},
-        params : null
-    };
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
 
     //修改比赛结果的url
     var modifyUrl = 'http://192.168.5.109:8080/stake/result';
-
     var modifyflag = true;
 
     //全局配置控制
@@ -337,16 +336,26 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
         //stage : false  //是否所处于修改结果阶段，控制重复渲染
     //};
 
-    var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
-    localStorageService.set('Authorization',authoriza);
-    localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
-    console.log(authoriza,'set');
+    //每次请求的 url
+    // var urlObj = {
+    //     url : './data/data.php',
+    //     domain : 'http://120.26.75.31:8080',
+    //     path : '/data/data.php',
+    //     searchObj : {},
+    //     params : null
+    // };
+
+    // var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
+    // localStorageService.set('Authorization',authoriza);
+    // localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
+    // console.log(authoriza,'set');
 
 
     $timeout.cancel($rootScope.timer);
     function action(){
+        initEncrypt('./data/data.php',null);
         $http({
-            url : urlObj.url,
+            url : './data/data.php',
             method : 'get',
             dataType : 'json',
         }).then(function(res){
@@ -512,10 +521,19 @@ myApp.controller('lotterylistCtrl',['$scope','$http',function($scope,$http){
 //分盘的 押注 页
 myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','$location','encrypt','localStorageService','baseData','initSendData','makeSendData',function($scope,$rootScope,$http,$timeout,$filter,$state,$location,encrypt,localStorageService,baseData,initSendData,makeSendData){
     //未登录先登录
-    if(!localStorageService.get('username')){
-        $state.go('login');
-        return;
+    // if(!localStorageService.get('username')){
+    //     $state.go('login');
+    //     return;
+    // }
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
     }
+
 
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
@@ -570,26 +588,30 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
         axis: "x"
     };
     //每次请求的 url
-    var urlObj = {
-        url : './data/data.php',
-        domain : 'http://120.26.75.31:8080',
-        path : '/data/data.php',
-        searchObj : {},
-        params : null
-    };
+    // var urlObj = {
+    //     url : './data/data.php',
+    //     domain : 'http://120.26.75.31:8080',
+    //     path : '/data/data.php',
+    //     searchObj : {},
+    //     params : null
+    // };
+
+    // var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
+    // localStorageService.set('Authorization',authoriza);
+    // localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
+    // console.log(authoriza,'set');
+
+
     //修改比赛结果的url
     var modifyUrl = 'http://192.168.5.109:8080/stake/result';
     var modifyflag = true;
 
-    var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
-    localStorageService.set('Authorization',authoriza);
-    localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
-    console.log(authoriza,'set');
 
     $timeout.cancel($rootScope.yztimer);
     function action(){
+        initEncrypt('./data/data.php',null);
         $http({
-            url : urlObj.url,
+            url : './data/data.php',
             method : 'get',
             dataType : 'json',
         }).then(function(res){
@@ -724,86 +746,261 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('playerlistCtrl',['$scope',function($scope){
+}]).controller('playerlistCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "玩家列表管理";
 
+    $scope.queryNickName = '';
+    $scope.queryPage = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+
+    function initData(){
+        $http({
+           url : 'http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+    initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+    initData();
+
+
+    $scope.search = function(){
+        console.log('search');
+        $scope.queryNickName = $scope.nickname;
+        initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+        initData();
+    }
+
     //分页
-    $scope.currentPage = 1;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
     $scope.goPage = function(page){
         console.log(page);
+        $scope.queryPage = page;
+        initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+        initData();
     };
 
-}]).controller('playerportCtrl',['$scope','$timeout',function($scope,$timeout){
+}]).controller('playerportCtrl',['$scope','$timeout','$http','encrypt','localStorageService',function($scope,$timeout,$http,encrypt,localStorageService){
     $scope.text = "玩家报表管理";
-    var timer = null; //控制搜索
+    //控制搜索
+    var timer = null;
+    $scope.nicklist = false;
+
+
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryNickName = '';
+    $scope.queryIssue = '';
+    $scope.queryPage = '';
+
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
 
     $scope.selectActive = 'byDate';
 
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee'},
-        {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee'},
-    ];
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/members/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/members/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
 
-    // $scope.startTime = '2016-06-12';
-    // $scope.endTime = '2016-08-12';
-    // $scope.issue = '1232454';
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/members/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/members/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    byDate();
 
 
     $scope.nickSearch = function(event){
         $timeout.cancel(timer);
         timer = $timeout(function(){
-            console.log(event.keyCode,$scope.nickname);
-        },500);
+            console.log($scope.nickname);
+            //initEncrypt('./data/list.php',null);
+            $http({
+                url : './data/list.php',
+                method : 'get'
+            }).then(function(res){
+                // var data = res.data;
+                // console.log(res);
+                // if(data.result == 'SUCCESS'){
+                //     $scope.nicklist = true;
+                //     $scope.listItems = data.data;
+                // }
+
+                if(res.status ==200){
+                    console.log(res);
+                    $scope.nicklist = true;
+                    $scope.listItems = res.data;
+                }
+
+            },function(){
+
+            });
+
+        },300);
+    }
+    $scope.listClick = function(str){
+        $scope.nicklist = false;
+        $scope.nickname = str;
     }
 
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
+        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
+        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        $scope.queryIssue = $scope.issue;
+        byIssue();
     }
 
 
     //分页
-    $scope.currentPage = 1;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
     $scope.goPage = function(page){
+        $scope.queryPage = page;
         console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
     };
     // 按日期 与 按 期号 切换
     $scope.reRender = function(item){
         if(item == 'date'){ //按日期
             $scope.selectActive = 'byDate';
-
-
-            //分页
-            $scope.currentPage = 1;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 70;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
         }
         if(item == 'issue'){ //按期号
             $scope.selectActive = 'byIssue';
-
-            //分页
-            $scope.currentPage = 30;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 100;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
         }
     };
 
-}]).controller('playerDetailCtrl',['$scope',function($scope){
+}]).controller('playerDetailCtrl',['$scope','$stateParams','$http','localStorageService','encrypt',function($scope,$stateParams,$http,localStorageService,encrypt){
+    //console.log($stateParams);
+    $scope.queryMemberId = $stateParams.memberId;
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryType = '';
+    $scope.queryPage = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/members/'+$scope.queryMemberId+'?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&type='+$scope.queryType+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/members/'+$scope.queryMemberId+'?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&type='+$scope.queryType+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+    initData();
+
+
+    $scope.search = function(){
+        console.log($scope.startTime,$scope.endTime,$scope.type);
+        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+
+        initData();
+    }
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        initData();
+    };
 
 }]);
 
@@ -812,68 +1009,170 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('integralCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('applyCtrl',['$scope','$sanitize',function($scope,$sanitize){
+}]).controller('applyCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "申请积分";
     $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
 
-    //确认发送数据
-    $scope.confirm = function() {
-        console.log($scope.applyText,$scope.money);
+    $scope.queryStatus = '';
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/points?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&status='+$scope.queryStatus+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/points?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&status='+$scope.queryStatus+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
+
+
+
+    //select
+    $scope.selectOptions =[{key:'UNTREATED',value:'申请中'},{key:'AUDIT',value:'已批准'},{key:'REJECT',value:'已拒绝'},{key:'CANCEL',value:'已取消'}];
+    $scope.selection = $scope.selectOptions[0];
+    $scope.selectChange = function(){
+        $scope.queryStatus = $scope.selection.key;
+        $scope.queryPage = 1;
+        initData();
     };
 
-    // $scope.tableData = [
-    //     {'code':1,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'ok'},
-    //     {'code':2,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'danger'},
-    //     {'code':3,'aa':'aa','bb':'bb','cc':'cc','dd':'dd','ee':'ee','ff':'cancel'},
-    // ];
-    //
-    // //分页
-    // $scope.currentPage = 30;
-    // //$scope.pageSize = 5;  //每页显示多少
-    // $scope.total = 100;
-    // $scope.goPage = function(page){
-    //     console.log(page);
-    // };
-    //
-    // $scope.toRight = function(item) {
-    //     console.log(item);
-    //     $scope.modalContent = '';
-    //     switch (item) {
-    //         case 'ok':
-    //             $scope.modalTitle = '批准';
-    //             $scope.modalStatus = 'ok';
-    //             break;
-    //         case 'danger':
-    //             $scope.modalTitle = '拒绝';
-    //             $scope.modalStatus = 'danger';
-    //             break;
-    //         case 'cancel':
-    //             $scope.modalTitle = '取消';
-    //             $scope.modalStatus = 'cancel';
-    //             break;
-    //     }
-    // };
+    //新增 确认
+    $scope.confirm = function() {
+        console.log($scope.applyText,$scope.money);
+        initEncrypt('http://60.205.163.65:8080/user/points',{
+            appComment : $scope.applyText,
+            Points : $scope.money
+        });
+        $http({
+           url : 'http://60.205.163.65:8080/user/points',
+           method : 'post',
+           data : {
+               appComment : $scope.applyText,
+               Points : $scope.money
+           }
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+           if(data.result=='ERROR'){
+               alert(data.message);
+           }
+           if(data.result=='SUCCESS'){
+               alert('操作成功');
+               initData();
+           }
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    };
 
 
+    //取消
+    $scope.cancel = function(id){
+        console.log(id);
+        initEncrypt('http://60.205.163.65:8080/user/points/status/cancel',null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/points/status/cancel',
+           method : 'put',
 
-}]).controller('listCtrl',['$scope',function($scope){
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+           if(data.result=='ERROR'){
+               alert(data.message);
+           }
+           if(data.result=='SUCCESS'){
+               alert('操作成功');
+               initData();
+           }
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        initData();
+    };
+
+}]).controller('listCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "操作记录";
     $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
 
+    //默认选择
+    $scope.status = 1;
+
+    $scope.queryStatus = 1;
+    $scope.queryPage = 1;
+
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/state?status='+$scope.queryStatus+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/state?status='+$scope.queryStatus+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var data = res.data;
+
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
 
     //分页
-    $scope.currentPage = 30;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
     $scope.goPage = function(page){
-        console.log(page);
+        $scope.queryPage = page;
+        initData();
     };
 
-    $scope.tableData = [
-        {'code':1,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]},
-        {'code':2,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]}
-    ];
+    //change
+    $scope.change = function(){
+        console.log($scope.status);
+        initData();
+    }
 
+    // $scope.tableData = [
+    //     {'code':1,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+    //     {'code':2,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+    // ];
 
 }]);
 
@@ -903,60 +1202,113 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
 myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('otherPlCtrl',['$scope',function($scope){
+}]).controller('otherPlCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "分盘盈亏报表";
     $scope.selectActive = 'byDate';
-    // 表格数据格式
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]},
-        {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]}
-    ];
 
-    // $scope.startTime = '2016-06-12';
-    // $scope.endTime = '2016-08-12';
-    // $scope.issue = '1232454';
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+    $scope.queryIssue = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    byDate();
+
+
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
+        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
+        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        $scope.queryIssue = $scope.issue;
+        byIssue();
     }
 
     //分页
-    $scope.currentPage = 1;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
     $scope.goPage = function(page){
+        $scope.queryPage = page;
         console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
     };
 
     // 按日期 与 按 期号 切换
     $scope.reRender = function(item){
         if(item == 'date'){ //按日期
             $scope.selectActive = 'byDate';
-
-
-            //分页
-            $scope.currentPage = 1;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 70;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
         }
         if(item == 'issue'){ //按期号
             $scope.selectActive = 'byIssue';
-
-            //分页
-            $scope.currentPage = 30;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 100;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
         }
     };
 }]);
@@ -966,15 +1318,69 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('otherBetCtrl',['$scope',function($scope){
+}]).controller('otherBetCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "分盘押注报表";
-
     $scope.selectActive = 'byDate';
+
+
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+    $scope.issue = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+
+
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/bat/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/bat/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/bat/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.issue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/bat/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.issue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    byDate();
+
     // 表格数据格式
-    $scope.tableData = [
-        {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]},
-        {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]}
-    ];
+    // $scope.tableData = [
+    //     {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]},
+    //     {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]}
+    // ];
 
     // $scope.startTime = '2016-06-12';
     // $scope.endTime = '2016-08-12';
@@ -982,45 +1388,52 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
+        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
-    }
+        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        byIssue();
+    };
 
     //分页
-    $scope.currentPage = 1;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
     $scope.goPage = function(page){
+        $scope.queryPage = page;
         console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
     };
 
     // 按日期 与 按 期号 切换
     $scope.reRender = function(item){
         if(item == 'date'){ //按日期
             $scope.selectActive = 'byDate';
-
-
-            //分页
-            $scope.currentPage = 1;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 70;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
         }
         if(item == 'issue'){ //按期号
             $scope.selectActive = 'byIssue';
-
-            //分页
-            $scope.currentPage = 30;
-            //$scope.pageSize = 5;  //每页显示多少
-            $scope.total = 100;
-            $scope.goPage = function(page){
-                console.log(page);
-            };
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
         }
     };
 
@@ -1265,14 +1678,44 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('userCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('allUserCtrl',['$scope',function($scope){
+}]).controller('allUserCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "查看修改个人信息";
 
-    $scope.nickname = 'blue';
-    $scope.password = '123';
+    $scope.nickname = '';
+    $scope.password = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
 
     $scope.modify = function(){
         console.log($scope.nickname,$scope.password);
+        initEncrypt('http://60.205.163.65:8080/user/',{
+            nickName : $scope.nickname,
+            password : $scope.password
+        });
+        $http({
+            url : 'http://60.205.163.65:8080/user/',
+            method : 'put',
+            data : {
+                nickName : $scope.nickname,
+                password : $scope.password
+            }
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('操作成功');
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
     }
 
 }])

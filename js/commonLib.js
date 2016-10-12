@@ -102,23 +102,58 @@ myApp.directive('tabActive',function(){
 });
 
 
+//loading
+myApp.directive('loading',['$http' ,function ($http){
+    return {
+        restrict: 'A',
+        link: function (scope, elm, attrs){
+            scope.isLoading = function () {
+                return $http.pendingRequests.length > 0;
+            };
+            scope.$watch(scope.isLoading,function(v){
+                if(v){
+                    elm.show();
+                }else{
+                    elm.hide();
+                }
+            });
+        }
+    };
+}]);
+
 //拼接加密算法
 myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
-    // console.log($location.url());
-    // console.log($location.path());
-    // console.log($location.search());
-    // console.log(sha1.hash('/sign/check2011{"point":2000}10001123ewqasdcxz').toUpperCase(),'aaa');
-    // console.log(sha1.hash('/sign/check2011{\"point\":2000}10001123ewqasdcxz').toUpperCase(),'bbb');
+    function getUrlInfo(url,bodyQuery) {
+        var arrUrl = url.split("//");
+        var queryObj = new Object();
+        var start = arrUrl[1].indexOf("/");
+        var relUrl = arrUrl[1].substring(start);
+        console.log(relUrl,'relUrl');
 
+        if (relUrl.indexOf("?") != -1) {
+            var path = relUrl.split("?")[0];
+        }else{
+            var path = relUrl;
+        }
+        if (url.indexOf("?") != -1) {
+            var searchStr = '?'+relUrl.split("?")[1];
+            var str = searchStr.substr(1);
+            strs = str.split("&");
+            for(var i = 0; i < strs.length; i ++) {
+                queryObj[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+            }
+        }
+        return {url: url, domain: arrUrl[1].substring(0,start), path: path, searchObj:queryObj,params:bodyQuery};
+    }
 
-    //var path = $location.path();
-    //var path = '/sign/check';
-    //var searchObj = $location.search();
-    //var searchObj = {'userId':10001,'account':2011};
-    //console.log(keyStr);
     return {
-        getAuthor: function(urlObj, secretKey) {
-            urlObj.searchObj['requestBody'] = JSON.stringify(urlObj.params);
+        getAuthor: function(url, bodyQuery,secretKey) {
+            var urlObj = getUrlInfo(url,bodyQuery);
+            console.log(urlObj,'urlObj');
+            //return;
+            if(angular.isObject(urlObj.params)){
+                urlObj.searchObj['requestBody'] = JSON.stringify(urlObj.params);
+            }
             var keyArr = [];
             angular.forEach(urlObj.searchObj, function(val, key) {
                 keyArr.push(key);
@@ -129,10 +164,11 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
             angular.forEach(keyArr, function(val, index) {
                 keyStr += urlObj.searchObj[val];
             });
-            //console.log(urlObj.path + keyStr + secretKey);
+            console.log(urlObj.path + keyStr + secretKey,'加密的字串');
+            console.log(secretKey,'secretKey');
             return sha1.hash(urlObj.path + keyStr + secretKey).toUpperCase();
         }
-    }
+    };
 }]);
 
 
@@ -145,6 +181,7 @@ myApp.factory('HttpInterceptor', ['$q', 'localStorageService', function($q, loca
             if (localStorageService.get('Authorization')) {
                 //console.log(localStorageService.get('Authorization'),'location');
                 config.headers.Authorization = localStorageService.get('Authorization');
+                config.headers.Accesskey = localStorageService.get('Accesskey');
             }
             return config;
         },
@@ -180,7 +217,7 @@ myApp.filter('toMinSec', function() {
             sec = '0' + sec;
         }
         return min + ':' + sec;
-    }
+    };
 });
 
 //过滤数据
@@ -199,7 +236,7 @@ myApp.filter('splitArrFilter',function(){
         }else{
             return o;
         }
-    }
+    };
 });
 
 
