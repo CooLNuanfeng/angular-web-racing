@@ -21,18 +21,10 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>
-                    <a ui-sref="playerDetail({'memberId':2})" class="btn btn-sm btn-primary">查看详情</a>
-                </td>
-            </tr>
             <tr ng-repeat="row in tableData track by $index">
                 <td>{{$index+1}}</td>
-                <td>{{row.}}</td>
-                <td>{{row.}}</td>
+                <td>{{row.nickName}}</td>
+                <td>{{row.points}}</td>
                 <td>
                     <a ui-sref="playerDetail({'memberId':row.id})" class="btn btn-sm btn-primary">查看详情</a>
                 </td>

@@ -992,7 +992,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         console.log($scope.startTime,$scope.endTime,$scope.type);
         $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
         $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
-
+        $scope.queryType = $scope.type;
         initData();
     }
 
@@ -1052,9 +1052,10 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     $scope.selectOptions =[{key:'UNTREATED',value:'申请中'},{key:'AUDIT',value:'已批准'},{key:'REJECT',value:'已拒绝'},{key:'CANCEL',value:'已取消'}];
     $scope.selection = $scope.selectOptions[0];
     $scope.selectChange = function(){
+        console.log($scope.selection.key);
         $scope.queryStatus = $scope.selection.key;
-        $scope.queryPage = 1;
-        initData();
+        // $scope.queryPage = 1;
+        // initData();
     };
 
     //新增 确认
@@ -1062,14 +1063,14 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         console.log($scope.applyText,$scope.money);
         initEncrypt('http://60.205.163.65:8080/user/points',{
             appComment : $scope.applyText,
-            Points : $scope.money
+            appPoints : $scope.money
         });
         $http({
            url : 'http://60.205.163.65:8080/user/points',
            method : 'post',
            data : {
                appComment : $scope.applyText,
-               Points : $scope.money
+               appPoints : $scope.money
            }
         }).then(function(res){
            console.log(res);
@@ -1110,6 +1111,15 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         }, function(err){
            alert('请求失败，请重试或缺失必要内容');
         });
+    }
+
+    $scope.search = function(){
+        console.log($scope.selection);
+        $scope.queryStatus = $scope.queryStatus;
+        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        $scope.queryPage = 1;
+        initData();
     }
 
     //分页
@@ -1437,10 +1447,11 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
         }
     };
 
-}]).controller('betDetailCtrl',['$scope',function($scope){
+}]).controller('betDetailCtrl',['$scope','$stateParams',function($scope,$stateParams){
 
-    $scope.dateIssue = 'sfsdfds';
-    $scope.lotteryRestut = '12445555';
+    $scope.dateIssue = $stateParams.racingNum;
+    $scope.lotteryRestut = '';
+    $scope.count = $stateParams.count;
     $scope.money = 1000;
     $scope.fitloss = 23;
     $scope.allfitloss = 43;

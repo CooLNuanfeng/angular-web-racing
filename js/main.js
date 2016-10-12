@@ -57,7 +57,7 @@ myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorag
         url : '/playerDetail/:memberId',
         templateUrl : './templates/player/playerdetail.html'
     }).state('reportDetail',{
-        url : '/reportDetail',
+        url : '/reportDetail/:racingNum&:count',
         templateUrl : './templates/bet/betDetail.html'
     })
     //积分管理
