@@ -14,7 +14,7 @@ myApp.controller('userLoginedCtrl',['$scope','$state','$rootScope','localStorage
     $scope.logout = function(){
         localStorageService.clearAll();
         $state.go('login');
-    }
+    };
 }]);
 
 
@@ -70,236 +70,237 @@ myApp.controller('loginCtrl',['$scope','$http','$state','$rootScope','localStora
         },function(err){
             console.log(err);
         });
-    }
+    };
 }]);
 
 
 //实时开奖
 myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','encrypt','localStorageService',function($scope,$rootScope,$http,$timeout,$filter,$state,encrypt,localStorageService){
 
-    //1-10 表格数据
-    $scope.table1 = [
-        //1
-        [
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'}
-        ],
-        //2
-        [
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'}
-        ],
-        //3
-        [
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'}
-        ],
-        //4
-        [
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'}
-        ],
-        //5
-        [
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //6
-        [
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //7
-        [
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'}
-        ],
-        //8
-        [
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'}
-        ],
-        //9
-        [
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'}
-        ],
-        //10
-        [
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'}
-        ],
-        //11
-        [
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'}
-        ],
-        //12
-        [
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'}
-        ],
-        //13
-        [
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'}
-        ],
-        //14
-        [
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'}
-        ],
-        //15
-        [
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'}
-        ],
-        //16
-        [
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'}
-        ],
-    ];
-
-
-    //冠亚组 表格数据
-    $scope.table2 = [
-        [{'key':'3','value':'41','money':'100'},{'key':'4','value':'41','money':'100'},{'key':'5','value':'21','money':'100'},{'key':'6','value':'21','money':'100'}],
-        [{'key':'7','value':'12','money':'100'},{'key':'8','value':'12','money':'100'},{'key':'9','value':'10.3','money':'100'},{'key':'10','value':'10.3','money':'100'}],
-        [{'key':'11','value':'8.3','money':'100'},{'key':'12','value':'10.3','money':'100'},{'key':'13','value':'10.3','money':'100'},{'key':'14','value':'12','money':'100'}],
-        [{'key':'15','value':'12','money':'100'},{'key':'16','value':'21','money':'100'},{'key':'17','value':'21','money':'100'},{'key':'18','value':'41','money':'100'}],
-        [{'key':'19','value':'12','money':'100'},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
-        [{'key':'冠亚大','value':'2','money':'100'},{'key':'冠亚小','value':'1.63','money':'100'},{'key':'冠亚单','value':'1.63','money':'100'},{'key':'冠亚双','value':'2','money':'100'}]
-    ];
-
+    $scope.table1 = [];
+    $scope.table2 = [];
+    function maketableDate(json){
+        //1-10 表格数据
+        $scope.table1 = [
+            //1
+            [
+                {key:'大',value:1.94,money:json.rankingStakeList[0].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[1].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[2].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[3].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[4].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[5].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[6].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[7].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[8].big},
+                {key:'大',value:1.94,money:json.rankingStakeList[9].big}
+            ],
+            //2
+            [
+                {key:'小',value:1.94,money:json.rankingStakeList[0].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[1].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[2].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[3].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[4].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[5].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[6].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[7].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[8].small},
+                {key:'小',value:1.94,money:json.rankingStakeList[9].small}
+            ],
+            //3
+            [
+                {key:'单',value:1.94,money:json.rankingStakeList[0].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[1].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[2].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[3].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[4].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[5].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[6].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[7].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[8].odd},
+                {key:'单',value:1.94,money:json.rankingStakeList[9].odd}
+            ],
+            //4
+            [
+                {key:'双',value:1.94,money:json.rankingStakeList[0].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[1].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[2].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[3].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[4].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[5].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[6].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[7].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[8].even},
+                {key:'双',value:1.94,money:json.rankingStakeList[9].even}
+            ],
+            //5
+            [
+                {key:'龙',value:1.94,money:json.commonStake.firstUp},
+                {key:'龙',value:1.94,money:json.commonStake.secondUp},
+                {key:'龙',value:1.94,money:json.commonStake.thirdUp},
+                {key:'龙',value:1.94,money:json.commonStake.fourthUp},
+                {key:'龙',value:1.94,money:json.commonStake.fifthUp},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''}
+            ],
+            //6
+            [
+                {key:'虎',value:1.94,money:json.commonStake.firstDowm},
+                {key:'虎',value:1.94,money:json.commonStake.secondDowm},
+                {key:'虎',value:1.94,money:json.commonStake.thirdDowm},
+                {key:'虎',value:1.94,money:json.commonStake.fourthDowm},
+                {key:'虎',value:1.94,money:json.commonStake.fifthDowm},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''}
+            ],
+            //7
+            [
+                {key:1,value:9.7,money:json.appointStakeList[0].first},
+                {key:1,value:9.7,money:json.appointStakeList[0].second},
+                {key:1,value:9.7,money:json.appointStakeList[0].third},
+                {key:1,value:9.7,money:json.appointStakeList[0].fourth},
+                {key:1,value:9.7,money:json.appointStakeList[0].fifth},
+                {key:1,value:9.7,money:json.appointStakeList[0].sixth},
+                {key:1,value:9.7,money:json.appointStakeList[0].seventh},
+                {key:1,value:9.7,money:json.appointStakeList[0].eighth},
+                {key:1,value:9.7,money:json.appointStakeList[0].ninth},
+                {key:1,value:9.7,money:json.appointStakeList[0].tenth}
+            ],
+            //8
+            [
+                {key:2,value:9.7,money:json.appointStakeList[1].first},
+                {key:2,value:9.7,money:json.appointStakeList[1].second},
+                {key:2,value:9.7,money:json.appointStakeList[1].third},
+                {key:2,value:9.7,money:json.appointStakeList[1].fourth},
+                {key:2,value:9.7,money:json.appointStakeList[1].fifth},
+                {key:2,value:9.7,money:json.appointStakeList[1].sixth},
+                {key:2,value:9.7,money:json.appointStakeList[1].seventh},
+                {key:2,value:9.7,money:json.appointStakeList[1].eighth},
+                {key:2,value:9.7,money:json.appointStakeList[1].ninth},
+                {key:2,value:9.7,money:json.appointStakeList[1].tenth}
+            ],
+            //9
+            [
+                {key:3,value:9.7,money:json.appointStakeList[2].first},
+                {key:3,value:9.7,money:json.appointStakeList[2].second},
+                {key:3,value:9.7,money:json.appointStakeList[2].third},
+                {key:3,value:9.7,money:json.appointStakeList[2].fourth},
+                {key:3,value:9.7,money:json.appointStakeList[2].fifth},
+                {key:3,value:9.7,money:json.appointStakeList[2].sixth},
+                {key:3,value:9.7,money:json.appointStakeList[2].seventh},
+                {key:3,value:9.7,money:json.appointStakeList[2].eighth},
+                {key:3,value:9.7,money:json.appointStakeList[2].ninth},
+                {key:3,value:9.7,money:json.appointStakeList[2].tenth}
+            ],
+            //10
+            [
+                {key:4,value:9.7,money:json.appointStakeList[3].first},
+                {key:4,value:9.7,money:json.appointStakeList[3].second},
+                {key:4,value:9.7,money:json.appointStakeList[3].third},
+                {key:4,value:9.7,money:json.appointStakeList[3].fourth},
+                {key:4,value:9.7,money:json.appointStakeList[3].fifth},
+                {key:4,value:9.7,money:json.appointStakeList[3].sixth},
+                {key:4,value:9.7,money:json.appointStakeList[3].seventh},
+                {key:4,value:9.7,money:json.appointStakeList[3].eighth},
+                {key:4,value:9.7,money:json.appointStakeList[3].ninth},
+                {key:4,value:9.7,money:json.appointStakeList[3].tenth}
+            ],
+            //11
+            [
+                {key:5,value:9.7,money:json.appointStakeList[4].first},
+                {key:5,value:9.7,money:json.appointStakeList[4].second},
+                {key:5,value:9.7,money:json.appointStakeList[4].third},
+                {key:5,value:9.7,money:json.appointStakeList[4].fourth},
+                {key:5,value:9.7,money:json.appointStakeList[4].fifth},
+                {key:5,value:9.7,money:json.appointStakeList[4].sixth},
+                {key:5,value:9.7,money:json.appointStakeList[4].seventh},
+                {key:5,value:9.7,money:json.appointStakeList[4].eighth},
+                {key:5,value:9.7,money:json.appointStakeList[4].ninth},
+                {key:5,value:9.7,money:json.appointStakeList[4].tenth}
+            ],
+            //12
+            [
+                {key:6,value:9.7,money:json.appointStakeList[5].first},
+                {key:6,value:9.7,money:json.appointStakeList[5].second},
+                {key:6,value:9.7,money:json.appointStakeList[5].third},
+                {key:6,value:9.7,money:json.appointStakeList[5].fourth},
+                {key:6,value:9.7,money:json.appointStakeList[5].fifth},
+                {key:6,value:9.7,money:json.appointStakeList[5].sixth},
+                {key:6,value:9.7,money:json.appointStakeList[5].seventh},
+                {key:6,value:9.7,money:json.appointStakeList[5].eighth},
+                {key:6,value:9.7,money:json.appointStakeList[5].ninth},
+                {key:6,value:9.7,money:json.appointStakeList[5].tenth}
+            ],
+            //13
+            [
+                {key:7,value:9.7,money:json.appointStakeList[6].first},
+                {key:7,value:9.7,money:json.appointStakeList[6].second},
+                {key:7,value:9.7,money:json.appointStakeList[6].third},
+                {key:7,value:9.7,money:json.appointStakeList[6].fourth},
+                {key:7,value:9.7,money:json.appointStakeList[6].fifth},
+                {key:7,value:9.7,money:json.appointStakeList[6].sixth},
+                {key:7,value:9.7,money:json.appointStakeList[6].seventh},
+                {key:7,value:9.7,money:json.appointStakeList[6].eighth},
+                {key:7,value:9.7,money:json.appointStakeList[6].ninth},
+                {key:7,value:9.7,money:json.appointStakeList[6].tenth}
+            ],
+            //14
+            [
+                {key:8,value:9.7,money:json.appointStakeList[7].first},
+                {key:8,value:9.7,money:json.appointStakeList[7].second},
+                {key:8,value:9.7,money:json.appointStakeList[7].third},
+                {key:8,value:9.7,money:json.appointStakeList[7].fourth},
+                {key:8,value:9.7,money:json.appointStakeList[7].fifth},
+                {key:8,value:9.7,money:json.appointStakeList[7].sixth},
+                {key:8,value:9.7,money:json.appointStakeList[7].seventh},
+                {key:8,value:9.7,money:json.appointStakeList[7].eighth},
+                {key:8,value:9.7,money:json.appointStakeList[7].ninth},
+                {key:8,value:9.7,money:json.appointStakeList[7].tenth}
+            ],
+            //15
+            [
+                {key:9,value:9.7,money:json.appointStakeList[8].first},
+                {key:9,value:9.7,money:json.appointStakeList[8].second},
+                {key:9,value:9.7,money:json.appointStakeList[8].third},
+                {key:9,value:9.7,money:json.appointStakeList[8].fourth},
+                {key:9,value:9.7,money:json.appointStakeList[8].fifth},
+                {key:9,value:9.7,money:json.appointStakeList[8].sixth},
+                {key:9,value:9.7,money:json.appointStakeList[8].seventh},
+                {key:9,value:9.7,money:json.appointStakeList[8].eighth},
+                {key:9,value:9.7,money:json.appointStakeList[8].ninth},
+                {key:9,value:9.7,money:json.appointStakeList[8].tenth}
+            ],
+            //16
+            [
+                {key:10,value:9.7,money:json.appointStakeList[9].first},
+                {key:10,value:9.7,money:json.appointStakeList[9].second},
+                {key:10,value:9.7,money:json.appointStakeList[9].third},
+                {key:10,value:9.7,money:json.appointStakeList[9].fourth},
+                {key:10,value:9.7,money:json.appointStakeList[9].fifth},
+                {key:10,value:9.7,money:json.appointStakeList[9].sixth},
+                {key:10,value:9.7,money:json.appointStakeList[9].seventh},
+                {key:10,value:9.7,money:json.appointStakeList[9].eighth},
+                {key:10,value:9.7,money:json.appointStakeList[9].ninth},
+                {key:10,value:9.7,money:json.appointStakeList[9].tenth}
+            ],
+        ];
+        //冠亚组 表格数据
+        $scope.table2 = [
+            [{'key':'3','value':'41','money':json.commonStake.firstSecond3},{'key':'4','value':'41','money':json.commonStake.firstSecond4},{'key':'5','value':'21','money':json.commonStake.firstSecond5},{'key':'6','value':'21','money':json.commonStake.firstSecond6}],
+            [{'key':'7','value':'12','money':json.commonStake.firstSecond7},{'key':'8','value':'12','money':json.commonStake.firstSecond8},{'key':'9','value':'10.3','money':json.commonStake.firstSecond9},{'key':'10','value':'10.3','money':json.commonStake.firstSecond10}],
+            [{'key':'11','value':'8.3','money':json.commonStake.firstSecond11},{'key':'12','value':'10.3','money':json.commonStake.firstSecond12},{'key':'13','value':'10.3','money':json.commonStake.firstSecond13},{'key':'14','value':'12','money':json.commonStake.firstSecond14}],
+            [{'key':'15','value':'12','money':json.commonStake.firstSecond15},{'key':'16','value':'21','money':json.commonStake.firstSecond16},{'key':'17','value':'21','money':json.commonStake.firstSecond17},{'key':'18','value':'41','money':json.commonStake.firstSecond18}],
+            [{'key':'19','value':'12','money':json.commonStake.firstSecond19},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
+            [{'key':'冠亚大','value':'2','money':json.commonStake.firstSecondBig},{'key':'冠亚小','value':'1.63','money':json.commonStake.firstSecondSmall},{'key':'冠亚单','value':'1.63','money':json.commonStake.firstSecondOdd},{'key':'冠亚双','value':'2','money':json.commonStake.firstSecondOdd}]
+        ];
+    }
 
     //拖拽配置项 jQuery ui
     $scope.sortableOptions = {
@@ -321,55 +322,35 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
         //console.log(authoriza,'set');
     }
 
-    //修改比赛结果的url
-    var modifyUrl = 'http://192.168.5.109:8080/stake/result';
-    var modifyflag = true;
-
-    //全局配置控制
-    //var config = {
-        // racingNum : '',  //本次期号
-        // setInterval : 2000,  //多少时间请求一次
-        // url : 'http://192.168.5.109:8080/stake/config', //实时请求url
-        //yazhuUrl : 'http://192.168.5.109:8080/stake/invoke',  //押注url
-        //modifyUrl : 'http://192.168.5.109:8080/stake/result?racingNum=',
-        //newflag : true,  //是否为新一轮开始
-        //stage : false  //是否所处于修改结果阶段，控制重复渲染
-    //};
-
-    //每次请求的 url
-    // var urlObj = {
-    //     url : './data/data.php',
-    //     domain : 'http://120.26.75.31:8080',
-    //     path : '/data/data.php',
-    //     searchObj : {},
-    //     params : null
-    // };
-
-    // var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
-    // localStorageService.set('Authorization',authoriza);
-    // localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
-    // console.log(authoriza,'set');
+    // //修改比赛结果的url
+    // var modifyUrl = 'http://192.168.5.109:8080/stake/result';
+    // var modifyflag = true;
 
 
     $timeout.cancel($rootScope.timer);
     function action(){
-        initEncrypt('./data/data.php',null);
+        initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
         $http({
-            url : './data/data.php',
+            url : 'http://60.205.163.65:8080/user/stake/configer/info',
             method : 'get',
             dataType : 'json',
         }).then(function(res){
-            //console.log(res.data,'res');
+            console.log(res.data,'res');
             var resData = res.data;
 
             var json = resData.data;
+
+
             $scope.racingNum = json.racingNum;
             $scope.stopTime= $filter('toMinSec')(json.endStakeTime);
             $scope.startTime = $filter('toMinSec')(json.startRacingTime);
             $scope.todayIncome = json.todayIncome;
             $scope.preResult = json.preResult;
-            $scope.nowStatus = json.nowStatus;
+            $scope.nowStatus = json.stageName;
             $scope.preRacingNum = json.preRacingNum;
+
+            maketableDate(json.stakeVo);
+
 
             // if(resData.result==='验签失败'){
             //     $state.go('login');
@@ -401,41 +382,41 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
                 return;
             }
 
-            if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
-                console.log('计算最优结果中..');
+            // if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
+            //     console.log('计算最优结果中..');
 
-                $scope.modifyNotice = '';
-                $scope.tableDisabled = true;
-                $scope.toast = false;
-                $scope.mask = true;
-                $scope.computering = true;
-                $scope.modifying = false;
-                return;
-            }
+            //     $scope.modifyNotice = '';
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = true;
+            //     $scope.modifying = false;
+            //     return;
+            // }
 
-            if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
-                console.log('修改比赛结果');
-                // config.racingNum = resData.data.racingNum;
-                // $('.toast').hide();
-                // $('.table-box').addClass('disabled');
-                // $('.notice-info').html('现在可以修改比赛结果');
-                //modifyResult(resData.data.result);
-                // return;
+            // if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
+            //     console.log('修改比赛结果');
+            //     // config.racingNum = resData.data.racingNum;
+            //     // $('.toast').hide();
+            //     // $('.table-box').addClass('disabled');
+            //     // $('.notice-info').html('现在可以修改比赛结果');
+            //     //modifyResult(resData.data.result);
+            //     // return;
 
-                $scope.tableDisabled = true;
-                $scope.toast = false;
-                $scope.mask = true;
-                $scope.computering = false;
-                $scope.modifying = true;
-                if(modifyflag){
-                    $scope.arrResult = resData.data.result;
-                    modifyflag = false;
-                }
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = false;
+            //     $scope.modifying = true;
+            //     if(modifyflag){
+            //         $scope.arrResult = resData.data.result;
+            //         modifyflag = false;
+            //     }
 
-                $scope.modifyNotice = '';
-                return;
+            //     $scope.modifyNotice = '';
+            //     return;
 
-            }
+            // }
 
 
             if(resData.result==='SUCCESS' && resData.data.stage == 1){          //押注阶段
@@ -451,68 +432,60 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
         },function(err){
             console.log(err);
         });
-        $rootScope.timer = $timeout(action,3000);
+        $rootScope.timer = $timeout(action,1000);
     }
-    $rootScope.timer = $timeout(action,3000);
+    $rootScope.timer = $timeout(action,1000);
 
 
 
-    //修改比赛结果
-    $scope.modifyReslut = function(){
-        console.log($scope.arrResult,'drag end');
-        return;
-        $http({
-            url : modifyUrl,
-            method : 'put',
-            dataType : 'json',
-            data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
-        }).then(function(res){
-            console.log(res,'modifyReslut');
-        },function(err){
-            console.log(err);
-            $scope.modifyNotice = '请求失败请重试';
-        })
-    }
+    // //修改比赛结果
+    // $scope.modifyReslut = function(){
+    //     console.log($scope.arrResult,'drag end');
+    //     initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
+    //     $http({
+    //         url : modifyUrl,
+    //         method : 'put',
+    //         dataType : 'json',
+    //         data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
+    //     }).then(function(res){
+    //         console.log(res,'modifyReslut');
+    //     },function(err){
+    //         console.log(err);
+    //         $scope.modifyNotice = '请求失败请重试';
+    //     });
+    // };
 
 
 }]);
 
 //开奖列表
-myApp.controller('lotterylistCtrl',['$scope','$http',function($scope,$http){
+myApp.controller('lotterylistCtrl',['$scope','$http','localStorageService','encrypt',function($scope,$http,localStorageService,encrypt){
     $scope.text = '开奖列表页';
 
-    // $scope.tableRows = [{"date":"20161003043","reslut":[9,3,4,1,2,7,6,8,10,5],"item1":["\u662f","\u5426","\u662f","\u5426"],"item2":["\u662f","\u5426","\u662f","\u5426"]},{"date":"20161003044","reslut":[2,7,6,8,10,9,3,4,1,5],"item1":["\u662f","\u5426","\u662f","\u5426"],"item2":["\u662f","\u5426","\u662f","\u5426"]}]
 
-    /*
-    // var params = $.param({
-    //     email: 'blue@qq.com',
-    //     password: '123456'
-    // });
-    $http({
-        url : './data/lotterylist.php',
-        method : 'POST',
-        // headers : {
-        //     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-        // },
-        //data : params
-    }).then(function(res){
-        if(res.status==200){
-            $scope.tableRows = res.data;
-        }
-    },function(err){
-        console.log(err);
-    });
-    */
-
-    $scope.tableRows = [{"date":"20161003043","reslut":[9,3,4,1,2,7,6,8,10,5],"item1":["\u662f","\u5426","\u662f","\u5426"],"item2":["\u662f","\u5426","\u662f","\u5426"]},{"date":"20161003044","reslut":[2,7,6,8,10,9,3,4,1,5],"item1":["\u662f","\u5426","\u662f","\u5426"],"item2":["\u662f","\u5426","\u662f","\u5426"]}];
-
-
-    $scope.currentPage = 30;
-    //$scope.pageSize = 5;  //每页显示多少
-    $scope.total = 100;
-    $scope.goPage = function(a,b){
-        console.log(a,b);
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
     }
+
+    initEncrypt('http://60.205.163.65:8080/user/racing/result',null);
+    $http({
+        url : 'http://60.205.163.65:8080/user/racing/result',
+        method : 'get',
+    }).then(function(res){
+        console.log(res,'开奖列表');
+        var data = res.data;
+        $scope.tableData = data.data;
+        //分页
+        $scope.currentPage = data.page;
+        //$scope.pageSize = data.pageSize;
+        $scope.total = data.totalPage;
+    },function(err){
+        alert('请求失败，请重试或缺失必要内容');
+    });
 
 }]);
 
@@ -556,6 +529,11 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
     };
     //确认押注
     $scope.confim = function(){
+        if($scope.stage!==1){
+            alert('当前阶段不能押注');
+            return;
+        }
+
         var keyCode = ['big','small','odd','even']; //大小单双
         var keyCodeUp = ['firstUp','secondUp','thirdUp','fourthUp','fifthUp'];//龙
         var keyCodeDown = ['firstDowm','secondDowm','thirdDowm','fourthDowm','fifthDowm'];//虎
@@ -569,8 +547,28 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
             alert('您还没有押注');
             return;
         }
-        var params = makeSendData.makeParams($scope.sendData,$scope.selectedObj,$scope.money)
+        var params = makeSendData.makeParams($scope.sendData,$scope.selectedObj,$scope.money);
+        params.racingNum = $scope.racingNum;
+
         console.log(params);
+        initEncrypt('http://60.205.163.65:8080/user/stake',params);
+        $http({
+            url : 'http://60.205.163.65:8080/user/stake',
+            method : 'post',
+            data : params
+        }).then(function(res){
+            console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('押注成功');
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
     };
 
     //重置押注
@@ -603,15 +601,15 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
 
 
     //修改比赛结果的url
-    var modifyUrl = 'http://192.168.5.109:8080/stake/result';
-    var modifyflag = true;
+    //var modifyUrl = 'http://192.168.5.109:8080/stake/result';
+    //var modifyflag = true;
 
 
     $timeout.cancel($rootScope.yztimer);
     function action(){
-        initEncrypt('./data/data.php',null);
+        initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
         $http({
-            url : './data/data.php',
+            url : 'http://60.205.163.65:8080/user/stake/configer/info',
             method : 'get',
             dataType : 'json',
         }).then(function(res){
@@ -624,7 +622,8 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
             $scope.startTime = $filter('toMinSec')(json.startRacingTime);
             $scope.todayIncome = json.todayIncome;
             $scope.preResult = json.preResult;
-            $scope.nowStatus = json.nowStatus;
+            $scope.stage = json.stage;
+            $scope.nowStatus = json.stageName;
             $scope.preRacingNum = json.preRacingNum;
 
             // if(resData.result==='验签失败'){
@@ -657,41 +656,35 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
                 return;
             }
 
-            if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
-                console.log('计算最优结果中..');
+            // if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
+            //     console.log('计算最优结果中..');
+            //
+            //     $scope.modifyNotice = '';
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = true;
+            //     $scope.modifying = false;
+            //     return;
+            // }
 
-                $scope.modifyNotice = '';
-                $scope.tableDisabled = true;
-                $scope.toast = false;
-                $scope.mask = true;
-                $scope.computering = true;
-                $scope.modifying = false;
-                return;
-            }
-
-            if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
-                console.log('修改比赛结果');
-                // config.racingNum = resData.data.racingNum;
-                // $('.toast').hide();
-                // $('.table-box').addClass('disabled');
-                // $('.notice-info').html('现在可以修改比赛结果');
-                //modifyResult(resData.data.result);
-                // return;
-
-                $scope.tableDisabled = true;
-                $scope.toast = false;
-                $scope.mask = true;
-                $scope.computering = false;
-                $scope.modifying = true;
-                if(modifyflag){
-                    $scope.arrResult = resData.data.result;
-                    modifyflag = false;
-                }
-
-                $scope.modifyNotice = '';
-                return;
-
-            }
+            // if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
+            //     console.log('修改比赛结果');
+            //
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = false;
+            //     $scope.modifying = true;
+            //     if(modifyflag){
+            //         $scope.arrResult = resData.data.result;
+            //         modifyflag = false;
+            //     }
+            //
+            //     $scope.modifyNotice = '';
+            //     return;
+            //
+            // }
 
 
             if(resData.result==='SUCCESS' && resData.data.stage == 1){          //押注阶段
@@ -707,28 +700,28 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
         },function(err){
             console.log(err);
         });
-        $rootScope.yztimer = $timeout(action,3000);
+        $rootScope.yztimer = $timeout(action,5000);
     }
-    $rootScope.yztimer = $timeout(action,3000);
+    $rootScope.yztimer = $timeout(action,5000);
 
 
 
     //修改比赛结果
-    $scope.modifyReslut = function(){
-        console.log($scope.arrResult,'drag end');
-        return;
-        $http({
-            url : modifyUrl,
-            method : 'put',
-            dataType : 'json',
-            data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
-        }).then(function(res){
-            console.log(res,'modifyReslut');
-        },function(err){
-            console.log(err);
-            $scope.modifyNotice = '请求失败请重试';
-        })
-    }
+    // $scope.modifyReslut = function(){
+    //     console.log($scope.arrResult,'drag end');
+    //
+    //     $http({
+    //         url : modifyUrl,
+    //         method : 'put',
+    //         dataType : 'json',
+    //         data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
+    //     }).then(function(res){
+    //         console.log(res,'modifyReslut');
+    //     },function(err){
+    //         console.log(err);
+    //         $scope.modifyNotice = '请求失败请重试';
+    //     });
+    // };
 
 
 }]);
@@ -789,7 +782,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         $scope.queryNickName = $scope.nickname;
         initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
         initData();
-    }
+    };
 
     //分页
     $scope.goPage = function(page){
@@ -890,11 +883,11 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
             });
 
         },300);
-    }
+    };
     $scope.listClick = function(str){
         $scope.nicklist = false;
         $scope.nickname = str;
-    }
+    };
 
     $scope.searchByDate = function() {
         console.log('search by date');
@@ -911,7 +904,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
         $scope.queryIssue = $scope.issue;
         byIssue();
-    }
+    };
 
 
     //分页
@@ -994,7 +987,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
         $scope.queryType = $scope.type;
         initData();
-    }
+    };
 
     //分页
     $scope.goPage = function(page){
@@ -1111,7 +1104,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         }, function(err){
            alert('请求失败，请重试或缺失必要内容');
         });
-    }
+    };
 
     $scope.search = function(){
         console.log($scope.selection);
@@ -1120,7 +1113,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
         $scope.queryPage = 1;
         initData();
-    }
+    };
 
     //分页
     $scope.goPage = function(page){
@@ -1177,7 +1170,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     $scope.change = function(){
         console.log($scope.status);
         initData();
-    }
+    };
 
     // $scope.tableData = [
     //     {'code':1,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]},
@@ -1284,7 +1277,7 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
         $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
         $scope.queryIssue = $scope.issue;
         byIssue();
-    }
+    };
 
     //分页
     $scope.goPage = function(page){
@@ -1727,6 +1720,6 @@ myApp.controller('userCtrl',['$scope','$location',function($scope,$location){
         },function(){
             alert('请求失败，请重试或缺失必要内容');
         });
-    }
+    };
 
-}])
+}]);

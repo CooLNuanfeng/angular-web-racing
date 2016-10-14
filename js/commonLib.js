@@ -5,10 +5,10 @@ myApp.directive('clearTd',function(){
         link : function(scope,elem){
             $(elem).on('click',function(){
                 $('.table-box td').removeClass('selected');
-            })
+            });
         }
-    }
-})
+    };
+});
 //押注  td
 myApp.directive('myTd',function(){
     return {
@@ -56,9 +56,9 @@ myApp.directive('myTd',function(){
                         delete scope.selectedObj[key+'-'+code+'-'+tab];
                     }
                 }
-            })
+            });
         }
-    }
+    };
 });
 
 
@@ -73,7 +73,7 @@ myApp.directive('navHeader',function() {
             realtimeSelsect : '@realtimeActive'
         },
         templateUrl : './templates/nav/nav.html',
-    }
+    };
 });
 
 //历史回退
@@ -83,10 +83,10 @@ myApp.directive('goback',function(){
         link : function(scope,elem){
             $(elem).on('click',function(){
                 window.history.back();
-            })
+            });
         }
-    }
-})
+    };
+});
 
 // 切换 class active 指令
 myApp.directive('tabActive',function(){
@@ -96,9 +96,9 @@ myApp.directive('tabActive',function(){
             $(elem).on('click',function(ev){
                 $(elem).siblings('li').removeClass('active');
                 $(this).addClass('active');
-            })
+            });
         }
-    }
+    };
 });
 
 
@@ -125,15 +125,15 @@ myApp.directive('loading',['$http' ,function ($http){
 myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
     function getUrlInfo(url,bodyQuery) {
         var arrUrl = url.split("//");
-        var queryObj = new Object();
+        var queryObj = {};
         var start = arrUrl[1].indexOf("/");
         var relUrl = arrUrl[1].substring(start);
         console.log(relUrl,'relUrl');
-
+        var path = '';
         if (relUrl.indexOf("?") != -1) {
-            var path = relUrl.split("?")[0];
+            path = relUrl.split("?")[0];
         }else{
-            var path = relUrl;
+            path = relUrl;
         }
         if (url.indexOf("?") != -1) {
             var searchStr = '?'+relUrl.split("?")[1];
@@ -152,7 +152,7 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
             console.log(urlObj,'urlObj');
             //return;
             if(angular.isObject(urlObj.params)){
-                urlObj.searchObj['requestBody'] = JSON.stringify(urlObj.params);
+                urlObj.searchObj.requestBody = JSON.stringify(urlObj.params);
             }
             var keyArr = [];
             angular.forEach(urlObj.searchObj, function(val, key) {
@@ -207,6 +207,9 @@ myApp.factory('HttpInterceptor', ['$q', 'localStorageService', function($q, loca
 //时间格式化
 myApp.filter('toMinSec', function() {
     return function(time) {
+        if(time<0){
+            return '00:00';
+        }
         var totalSec = time / 1000;
         var min = parseInt(totalSec / 60);
         var sec = parseInt(totalSec % 60);
@@ -226,7 +229,7 @@ myApp.filter('splitArrFilter',function(){
         if(typeof o == 'object'){
             var str ='';
             for(var i=0;i<o.length;i++){
-                if(i==0){
+                if(i===0){
                     str += o[i];
                 }else{
                     str += '<span class="paddingTips">|</span>'+o[i];
@@ -251,12 +254,12 @@ myApp.factory('makeSendData',function(){
 
             money = parseInt(money);
 
-            angular.forEach(selectData,function(value,key){
-                var arr = key.split('-'); // rankingStakeList-7-4  or commonStake-firstSecond12
-
+            angular.forEach(selectData,function(value,itemkey){
+                var arr = itemkey.split('-'); // rankingStakeList-7-4  or commonStake-firstSecond12
+                var key = '',carSort='',tr='';
                 if(arr[3] == 'tab1'){ //1-5
-                    var key = arr[0],
-                        carSort = arr[1],
+                        key = arr[0];
+                        carSort = arr[1];
                         tr = arr[2];
                     switch (parseInt(tr)) {
                         case 1:  //大小单双
@@ -280,8 +283,8 @@ myApp.factory('makeSendData',function(){
                             break;
                     }
                 }else if(arr[3]=='tab2'){ // 6-10
-                    var key = arr[0],
-                        carSort = arr[1],
+                        key = arr[0];
+                        carSort = arr[1];
                         tr = arr[2];
 
                     switch (parseInt(tr)) {
@@ -306,7 +309,7 @@ myApp.factory('makeSendData',function(){
 
             return sendData;
         }
-    }
+    };
 });
 
 //初始化数据
@@ -327,7 +330,7 @@ myApp.factory('initSendData',function(){
                                 if(k !== 'carNum' && k !== 'rankingNum'){
                                     val[k] = 0;
                                 }
-                            })
+                            });
                         });
                         break;
                     default:
@@ -336,7 +339,7 @@ myApp.factory('initSendData',function(){
             });
             return dataJson;
         }
-    }
+    };
 });
 
 //押注时 初始状态的 sendData 数据
@@ -701,5 +704,5 @@ myApp.factory('baseData',function(){
                   }
               ]
         }
-    }
+    };
 });
