@@ -173,7 +173,7 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
 
 
 //在所有请求中添加 配置
-myApp.factory('HttpInterceptor', ['$q', 'localStorageService', function($q, localStorageService) {
+myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', function($q,$injector, localStorageService) {
     return {
         // 请求发出之前，可以用于添加各种身份验证信息
         request: function(config) {
@@ -192,7 +192,11 @@ myApp.factory('HttpInterceptor', ['$q', 'localStorageService', function($q, loca
         },
         // 成功返回了响应
         response: function(res) {
-            //console.log('response config success');
+            console.log(res,'response config success');
+            if(res.data.result === 'NO_LOGIN') {
+                $injector.get('$state').transitionTo('login');
+                return $q.reject(response);
+            }
             return res;
         },
         // 返回的响应出错，包括后端返回响应时，设置了非 200 的 http 状态码
