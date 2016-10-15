@@ -700,9 +700,9 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
         },function(err){
             console.log(err);
         });
-        $rootScope.yztimer = $timeout(action,5000);
+        $rootScope.yztimer = $timeout(action,1000);
     }
-    $rootScope.yztimer = $timeout(action,5000);
+    $rootScope.yztimer = $timeout(action,1000);
 
 
 
