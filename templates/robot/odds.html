@@ -1,3 +1,187 @@
 <div ng-controller="robotOddsCtrl">
     <h4>{{text}}</h4>
+    <div class="container-fluid">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>指定车号是第几名的赔率</td>
+                    <td>{{tableData.appointStakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('指定车号是第几名的赔率','appointStakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>名次对应的车号是大是小是单是双情况赔率</td>
+                    <td>{{tableData.rankingStakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('名次对应的车号是大是小是单是双情况赔率','rankingStakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>名次1~5的车号龙虎赔率</td>
+                    <td>{{tableData.upOrDownRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('名次1~5的车号龙虎赔率','upOrDownRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>冠亚和单赔率</td>
+                    <td>{{tableData.firstAddSecondOddRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和单赔率','firstAddSecondOddRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>冠亚和双赔率</td>
+                    <td>{{tableData.firstAddSecondEvenRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和双赔率','firstAddSecondEvenRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>冠亚和大赔率</td>
+                    <td>{{tableData.firstAddSecondBigRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和大赔率','firstAddSecondBigRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>冠亚和小赔率</td>
+                    <td>{{tableData.firstAddSecondSmallRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和小赔率','firstAddSecondSmallRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>冠亚和大赔率</td>
+                    <td>{{tableData.upOrDownRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和大赔率','upOrDownRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>冠亚和指定赔率(3)</td>
+                    <td>{{tableData.firstAddSecondAppoint3StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(3)','firstAddSecondAppoint3StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>冠亚和指定赔率(4)</td>
+                    <td>{{tableData.firstAddSecondAppoint4StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(4)','firstAddSecondAppoint4StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>冠亚和指定赔率(5)</td>
+                    <td>{{tableData.firstAddSecondAppoint5StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(5)','firstAddSecondAppoint5StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>冠亚和指定赔率(6)</td>
+                    <td>{{tableData.firstAddSecondAppoint6StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(6)','firstAddSecondAppoint6StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>冠亚和指定赔率(7)</td>
+                    <td>{{tableData.firstAddSecondAppoint7StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(7)','firstAddSecondAppoint7StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td>冠亚和指定赔率(8)</td>
+                    <td>{{tableData.firstAddSecondAppoint8StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(8)','firstAddSecondAppoint8StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>冠亚和指定赔率(9)</td>
+                    <td>{{tableData.firstAddSecondAppoint9StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(9)','firstAddSecondAppoint9StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td>冠亚和指定赔率(10)</td>
+                    <td>{{tableData.firstAddSecondAppoint10StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(10)','firstAddSecondAppoint10StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>冠亚和指定赔率(11)</td>
+                    <td>{{tableData.firstAddSecondAppoint11StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(11)','firstAddSecondAppoint11StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td>冠亚和指定赔率(12)</td>
+                    <td>{{tableData.firstAddSecondAppoint12StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(12)','firstAddSecondAppoint12StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>19</td>
+                    <td>冠亚和指定赔率(13)</td>
+                    <td>{{tableData.firstAddSecondAppoint13StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(13)','firstAddSecondAppoint13StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                    <td>冠亚和指定赔率(14)</td>
+                    <td>{{tableData.firstAddSecondAppoint14StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(14)','firstAddSecondAppoint14StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td>冠亚和指定赔率(15)</td>
+                    <td>{{tableData.firstAddSecondAppoint15StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(15)','firstAddSecondAppoint15StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>冠亚和指定赔率(16)</td>
+                    <td>{{tableData.firstAddSecondAppoint16StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(16)','firstAddSecondAppoint16StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>23</td>
+                    <td>冠亚和指定赔率(17)</td>
+                    <td>{{tableData.firstAddSecondAppoint17StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(17)','firstAddSecondAppoint17StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>24</td>
+                    <td>冠亚和指定赔率(18)</td>
+                    <td>{{tableData.firstAddSecondAppoint18StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(18)','firstAddSecondAppoint18StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+                <tr>
+                    <td>25</td>
+                    <td>冠亚和指定赔率(19)</td>
+                    <td>{{tableData.firstAddSecondAppoint19StakeRate}}</td>
+                    <td><button class="btn btn-info" ng-click="mofiy('冠亚和指定赔率(19)','firstAddSecondAppoint19StakeRate')" data-toggle="modal" data-target="#myModal">修改机器人赔率</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">{{modalTitle}}</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group form-inline text-center">
+              <label for="" class="control-label">情输入赔率: </label>
+              <input type="text" class="form-control" ng-model='odds' placeholder="情输入赔率">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" ng-click='confirm()' data-dismiss="modal">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
 </div>

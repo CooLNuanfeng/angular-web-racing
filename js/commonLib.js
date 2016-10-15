@@ -192,7 +192,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         },
         // 成功返回了响应
         response: function(res) {
-            console.log(res,'response config success');
+            //console.log(res,'response config success');
             if(res.data.result === 'NO_LOGIN') {
                 $injector.get('$state').transitionTo('login');
                 return $q.reject(response);

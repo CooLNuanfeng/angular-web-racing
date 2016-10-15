@@ -730,10 +730,136 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
 myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('robotStatusCtrl',['$scope',function($scope){
+}]).controller('robotStatusCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "机器人状态管理";
-}]).controller('robotOddsCtrl',['$scope',function($scope){
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+
+    initEncrypt('http://60.205.163.65:8080/user',null);
+    $http({
+        url : 'http://60.205.163.65:8080/user',
+        method : 'get',
+    }).then(function(res){
+        console.log(res,'robot');
+        var data = res.data;
+        if(data.result=='ERROR'){
+            alert(data.message);
+        }
+        if(data.result=='SUCCESS'){
+            $scope.hasRobot = data.data.isHaveClient;
+            $scope.hasExpired = data.data.isClientExpired;
+        }
+    },function(){
+        alert('请求失败，请重试或缺失必要内容');
+    });
+
+
+    //是否报盘
+    $scope.report = '1';
+
+    $scope.offer = function(){
+        console.log($scope.report,'是否报盘');
+        initEncrypt('http://60.205.163.65:8080/user/robot/enable',{
+            clientIsEnable : $scope.report == '1'?true:false
+        });
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/enable',
+            method : 'put',
+            data : {
+                clientIsEnable : $scope.report == '1'?true:false
+            }
+        }).then(function(res){
+            console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('操作成功');
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    };
+
+}]).controller('robotOddsCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "机器人赔率管理";
+
+    $scope.queryKey = '';
+
+    function initEncrypt(url,bodyQuery){
+        //console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        //console.log(authoriza,'set');
+    }
+
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/robot/rate',null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/rate',
+            method : 'get',
+        }).then(function(res){
+            console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                $scope.tableData = data.data[0];
+                console.log($scope.tableData,'dssfsdfsdfs');
+                //分页
+                $scope.currentPage = data.page;
+                //$scope.pageSize = data.pageSize;
+                $scope.total = data.totalPage;
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
+
+
+    $scope.mofiy = function(title,key){
+        $scope.odds = '';
+        $scope.modalTitle = title;
+        $scope.queryKey = key;
+    };
+    $scope.confirm = function(){
+        console.log($scope.odds,$scope.queryKey);
+
+        if($scope.odds === '' || $scope.odds === undefined){
+            alert('赔率不为空');
+            return;
+        }
+        $scope.tableData[$scope.queryKey] = $scope.odds;
+        initEncrypt('http://60.205.163.65:8080/user/robot/rate',$scope.tableData);
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/rate',
+            method : 'put',
+            data : $scope.tableData
+        }).then(function(res){
+            console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('修改成功');
+                initData();
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
+    };
+
 }]);
 //玩家管理
 myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
