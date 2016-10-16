@@ -110,6 +110,7 @@ myApp.directive('loading',['$http' ,function ($http){
         restrict: 'A',
         link: function (scope, elm, attrs){
             scope.isLoading = function () {
+                //console.log($http,'$http.pendingRequests');
                 return $http.pendingRequests.length > 0;
             };
             scope.$watch(scope.isLoading,function(v){
