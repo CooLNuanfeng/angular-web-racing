@@ -1610,239 +1610,285 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
         }
     };
 
-}]).controller('betDetailCtrl',['$scope','$stateParams',function($scope,$stateParams){
+}]).controller('betDetailCtrl',['$scope','$stateParams','$http','encrypt','localStorageService',function($scope,$stateParams,$http,encrypt,localStorageService){
 
-    $scope.dateIssue = $stateParams.racingNum;
-    $scope.lotteryRestut = '';
-    $scope.count = $stateParams.count;
-    $scope.money = 1000;
-    $scope.fitloss = 23;
-    $scope.allfitloss = 43;
+    console.log($stateParams.type);
+    $scope.type = $stateParams.type;
+    $scope.dateIssue = $stateParams.category;
 
 
 
-    //1-10 表格数据
-    $scope.table1 = [
-        //1
-        [
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'},
-            {key:'大',value:1.94,money:'aa'}
-        ],
-        //2
-        [
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'},
-            {key:'小',value:1.94,money:'aa'}
-        ],
-        //3
-        [
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'},
-            {key:'单',value:1.94,money:'aa'}
-        ],
-        //4
-        [
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'},
-            {key:'双',value:1.94,money:'aa'}
-        ],
-        //5
-        [
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'龙',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //6
-        [
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'虎',value:1.94,money:'aa'},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''},
-            {key:'',value:'',money:''}
-        ],
-        //7
-        [
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'},
-            {key:1,value:9.7,money:'aa'}
-        ],
-        //8
-        [
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'},
-            {key:2,value:9.7,money:'aa'}
-        ],
-        //9
-        [
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'},
-            {key:3,value:9.7,money:'aa'}
-        ],
-        //10
-        [
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'},
-            {key:4,value:9.7,money:'aa'}
-        ],
-        //11
-        [
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'},
-            {key:5,value:9.7,money:'aa'}
-        ],
-        //12
-        [
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'},
-            {key:6,value:9.7,money:'aa'}
-        ],
-        //13
-        [
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'},
-            {key:7,value:9.7,money:'aa'}
-        ],
-        //14
-        [
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'},
-            {key:8,value:9.7,money:'aa'}
-        ],
-        //15
-        [
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'},
-            {key:9,value:9.7,money:'aa'}
-        ],
-        //16
-        [
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'},
-            {key:10,value:9.7,money:'aa'}
-        ],
-    ];
+        function initEncrypt(url,bodyQuery){
+            //console.log(url,'url');
+            var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+            localStorageService.set('Authorization',authoriza);
+            localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+            //console.log(authoriza,'set');
+        }
+
+        function maketableDate(json){
+            //1-10 表格数据
+            $scope.table1 = [
+                //1
+                [
+                    {key:'大',value:1.94,money:json.rankingStakeList[0].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[1].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[2].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[3].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[4].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[5].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[6].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[7].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[8].big},
+                    {key:'大',value:1.94,money:json.rankingStakeList[9].big}
+                ],
+                //2
+                [
+                    {key:'小',value:1.94,money:json.rankingStakeList[0].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[1].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[2].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[3].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[4].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[5].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[6].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[7].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[8].small},
+                    {key:'小',value:1.94,money:json.rankingStakeList[9].small}
+                ],
+                //3
+                [
+                    {key:'单',value:1.94,money:json.rankingStakeList[0].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[1].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[2].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[3].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[4].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[5].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[6].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[7].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[8].odd},
+                    {key:'单',value:1.94,money:json.rankingStakeList[9].odd}
+                ],
+                //4
+                [
+                    {key:'双',value:1.94,money:json.rankingStakeList[0].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[1].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[2].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[3].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[4].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[5].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[6].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[7].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[8].even},
+                    {key:'双',value:1.94,money:json.rankingStakeList[9].even}
+                ],
+                //5
+                [
+                    {key:'龙',value:1.94,money:json.commonStake.firstUp},
+                    {key:'龙',value:1.94,money:json.commonStake.secondUp},
+                    {key:'龙',value:1.94,money:json.commonStake.thirdUp},
+                    {key:'龙',value:1.94,money:json.commonStake.fourthUp},
+                    {key:'龙',value:1.94,money:json.commonStake.fifthUp},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''}
+                ],
+                //6
+                [
+                    {key:'虎',value:1.94,money:json.commonStake.firstDowm},
+                    {key:'虎',value:1.94,money:json.commonStake.secondDowm},
+                    {key:'虎',value:1.94,money:json.commonStake.thirdDowm},
+                    {key:'虎',value:1.94,money:json.commonStake.fourthDowm},
+                    {key:'虎',value:1.94,money:json.commonStake.fifthDowm},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''}
+                ],
+                //7
+                [
+                    {key:1,value:9.7,money:json.appointStakeList[0].first},
+                    {key:1,value:9.7,money:json.appointStakeList[0].second},
+                    {key:1,value:9.7,money:json.appointStakeList[0].third},
+                    {key:1,value:9.7,money:json.appointStakeList[0].fourth},
+                    {key:1,value:9.7,money:json.appointStakeList[0].fifth},
+                    {key:1,value:9.7,money:json.appointStakeList[0].sixth},
+                    {key:1,value:9.7,money:json.appointStakeList[0].seventh},
+                    {key:1,value:9.7,money:json.appointStakeList[0].eighth},
+                    {key:1,value:9.7,money:json.appointStakeList[0].ninth},
+                    {key:1,value:9.7,money:json.appointStakeList[0].tenth}
+                ],
+                //8
+                [
+                    {key:2,value:9.7,money:json.appointStakeList[1].first},
+                    {key:2,value:9.7,money:json.appointStakeList[1].second},
+                    {key:2,value:9.7,money:json.appointStakeList[1].third},
+                    {key:2,value:9.7,money:json.appointStakeList[1].fourth},
+                    {key:2,value:9.7,money:json.appointStakeList[1].fifth},
+                    {key:2,value:9.7,money:json.appointStakeList[1].sixth},
+                    {key:2,value:9.7,money:json.appointStakeList[1].seventh},
+                    {key:2,value:9.7,money:json.appointStakeList[1].eighth},
+                    {key:2,value:9.7,money:json.appointStakeList[1].ninth},
+                    {key:2,value:9.7,money:json.appointStakeList[1].tenth}
+                ],
+                //9
+                [
+                    {key:3,value:9.7,money:json.appointStakeList[2].first},
+                    {key:3,value:9.7,money:json.appointStakeList[2].second},
+                    {key:3,value:9.7,money:json.appointStakeList[2].third},
+                    {key:3,value:9.7,money:json.appointStakeList[2].fourth},
+                    {key:3,value:9.7,money:json.appointStakeList[2].fifth},
+                    {key:3,value:9.7,money:json.appointStakeList[2].sixth},
+                    {key:3,value:9.7,money:json.appointStakeList[2].seventh},
+                    {key:3,value:9.7,money:json.appointStakeList[2].eighth},
+                    {key:3,value:9.7,money:json.appointStakeList[2].ninth},
+                    {key:3,value:9.7,money:json.appointStakeList[2].tenth}
+                ],
+                //10
+                [
+                    {key:4,value:9.7,money:json.appointStakeList[3].first},
+                    {key:4,value:9.7,money:json.appointStakeList[3].second},
+                    {key:4,value:9.7,money:json.appointStakeList[3].third},
+                    {key:4,value:9.7,money:json.appointStakeList[3].fourth},
+                    {key:4,value:9.7,money:json.appointStakeList[3].fifth},
+                    {key:4,value:9.7,money:json.appointStakeList[3].sixth},
+                    {key:4,value:9.7,money:json.appointStakeList[3].seventh},
+                    {key:4,value:9.7,money:json.appointStakeList[3].eighth},
+                    {key:4,value:9.7,money:json.appointStakeList[3].ninth},
+                    {key:4,value:9.7,money:json.appointStakeList[3].tenth}
+                ],
+                //11
+                [
+                    {key:5,value:9.7,money:json.appointStakeList[4].first},
+                    {key:5,value:9.7,money:json.appointStakeList[4].second},
+                    {key:5,value:9.7,money:json.appointStakeList[4].third},
+                    {key:5,value:9.7,money:json.appointStakeList[4].fourth},
+                    {key:5,value:9.7,money:json.appointStakeList[4].fifth},
+                    {key:5,value:9.7,money:json.appointStakeList[4].sixth},
+                    {key:5,value:9.7,money:json.appointStakeList[4].seventh},
+                    {key:5,value:9.7,money:json.appointStakeList[4].eighth},
+                    {key:5,value:9.7,money:json.appointStakeList[4].ninth},
+                    {key:5,value:9.7,money:json.appointStakeList[4].tenth}
+                ],
+                //12
+                [
+                    {key:6,value:9.7,money:json.appointStakeList[5].first},
+                    {key:6,value:9.7,money:json.appointStakeList[5].second},
+                    {key:6,value:9.7,money:json.appointStakeList[5].third},
+                    {key:6,value:9.7,money:json.appointStakeList[5].fourth},
+                    {key:6,value:9.7,money:json.appointStakeList[5].fifth},
+                    {key:6,value:9.7,money:json.appointStakeList[5].sixth},
+                    {key:6,value:9.7,money:json.appointStakeList[5].seventh},
+                    {key:6,value:9.7,money:json.appointStakeList[5].eighth},
+                    {key:6,value:9.7,money:json.appointStakeList[5].ninth},
+                    {key:6,value:9.7,money:json.appointStakeList[5].tenth}
+                ],
+                //13
+                [
+                    {key:7,value:9.7,money:json.appointStakeList[6].first},
+                    {key:7,value:9.7,money:json.appointStakeList[6].second},
+                    {key:7,value:9.7,money:json.appointStakeList[6].third},
+                    {key:7,value:9.7,money:json.appointStakeList[6].fourth},
+                    {key:7,value:9.7,money:json.appointStakeList[6].fifth},
+                    {key:7,value:9.7,money:json.appointStakeList[6].sixth},
+                    {key:7,value:9.7,money:json.appointStakeList[6].seventh},
+                    {key:7,value:9.7,money:json.appointStakeList[6].eighth},
+                    {key:7,value:9.7,money:json.appointStakeList[6].ninth},
+                    {key:7,value:9.7,money:json.appointStakeList[6].tenth}
+                ],
+                //14
+                [
+                    {key:8,value:9.7,money:json.appointStakeList[7].first},
+                    {key:8,value:9.7,money:json.appointStakeList[7].second},
+                    {key:8,value:9.7,money:json.appointStakeList[7].third},
+                    {key:8,value:9.7,money:json.appointStakeList[7].fourth},
+                    {key:8,value:9.7,money:json.appointStakeList[7].fifth},
+                    {key:8,value:9.7,money:json.appointStakeList[7].sixth},
+                    {key:8,value:9.7,money:json.appointStakeList[7].seventh},
+                    {key:8,value:9.7,money:json.appointStakeList[7].eighth},
+                    {key:8,value:9.7,money:json.appointStakeList[7].ninth},
+                    {key:8,value:9.7,money:json.appointStakeList[7].tenth}
+                ],
+                //15
+                [
+                    {key:9,value:9.7,money:json.appointStakeList[8].first},
+                    {key:9,value:9.7,money:json.appointStakeList[8].second},
+                    {key:9,value:9.7,money:json.appointStakeList[8].third},
+                    {key:9,value:9.7,money:json.appointStakeList[8].fourth},
+                    {key:9,value:9.7,money:json.appointStakeList[8].fifth},
+                    {key:9,value:9.7,money:json.appointStakeList[8].sixth},
+                    {key:9,value:9.7,money:json.appointStakeList[8].seventh},
+                    {key:9,value:9.7,money:json.appointStakeList[8].eighth},
+                    {key:9,value:9.7,money:json.appointStakeList[8].ninth},
+                    {key:9,value:9.7,money:json.appointStakeList[8].tenth}
+                ],
+                //16
+                [
+                    {key:10,value:9.7,money:json.appointStakeList[9].first},
+                    {key:10,value:9.7,money:json.appointStakeList[9].second},
+                    {key:10,value:9.7,money:json.appointStakeList[9].third},
+                    {key:10,value:9.7,money:json.appointStakeList[9].fourth},
+                    {key:10,value:9.7,money:json.appointStakeList[9].fifth},
+                    {key:10,value:9.7,money:json.appointStakeList[9].sixth},
+                    {key:10,value:9.7,money:json.appointStakeList[9].seventh},
+                    {key:10,value:9.7,money:json.appointStakeList[9].eighth},
+                    {key:10,value:9.7,money:json.appointStakeList[9].ninth},
+                    {key:10,value:9.7,money:json.appointStakeList[9].tenth}
+                ],
+            ];
+            //冠亚组 表格数据
+            $scope.table2 = [
+                [{'key':'3','value':'41','money':json.commonStake.firstSecond3},{'key':'4','value':'41','money':json.commonStake.firstSecond4},{'key':'5','value':'21','money':json.commonStake.firstSecond5},{'key':'6','value':'21','money':json.commonStake.firstSecond6}],
+                [{'key':'7','value':'12','money':json.commonStake.firstSecond7},{'key':'8','value':'12','money':json.commonStake.firstSecond8},{'key':'9','value':'10.3','money':json.commonStake.firstSecond9},{'key':'10','value':'10.3','money':json.commonStake.firstSecond10}],
+                [{'key':'11','value':'8.3','money':json.commonStake.firstSecond11},{'key':'12','value':'10.3','money':json.commonStake.firstSecond12},{'key':'13','value':'10.3','money':json.commonStake.firstSecond13},{'key':'14','value':'12','money':json.commonStake.firstSecond14}],
+                [{'key':'15','value':'12','money':json.commonStake.firstSecond15},{'key':'16','value':'21','money':json.commonStake.firstSecond16},{'key':'17','value':'21','money':json.commonStake.firstSecond17},{'key':'18','value':'41','money':json.commonStake.firstSecond18}],
+                [{'key':'19','value':'12','money':json.commonStake.firstSecond19},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
+                [{'key':'冠亚大','value':'2','money':json.commonStake.firstSecondBig},{'key':'冠亚小','value':'1.63','money':json.commonStake.firstSecondSmall},{'key':'冠亚单','value':'1.63','money':json.commonStake.firstSecondOdd},{'key':'冠亚双','value':'2','money':json.commonStake.firstSecondOdd}]
+            ];
+        }
 
 
-    //冠亚组 表格数据
-    $scope.table2 = [
-        [{'key':'3','value':'41','money':'100'},{'key':'4','value':'41','money':'100'},{'key':'5','value':'21','money':'100'},{'key':'6','value':'21','money':'100'}],
-        [{'key':'7','value':'12','money':'100'},{'key':'8','value':'12','money':'100'},{'key':'9','value':'10.3','money':'100'},{'key':'10','value':'10.3','money':'100'}],
-        [{'key':'11','value':'8.3','money':'100'},{'key':'12','value':'10.3','money':'100'},{'key':'13','value':'10.3','money':'100'},{'key':'14','value':'12','money':'100'}],
-        [{'key':'15','value':'12','money':'100'},{'key':'16','value':'21','money':'100'},{'key':'17','value':'21','money':'100'},{'key':'18','value':'41','money':'100'}],
-        [{'key':'19','value':'12','money':'100'},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
-        [{'key':'冠亚大','value':'2','money':'100'},{'key':'冠亚小','value':'1.63','money':'100'},{'key':'冠亚单','value':'1.63','money':'100'},{'key':'冠亚双','value':'2','money':'100'}]
-    ];
+        var url = '';
+        if($scope.type == 'byDate'){
+            url = 'http://60.205.163.65:8080/user/stake/day/info?day='+$scope.dateIssue;
+        }
+        if($scope.type == 'byIssue'){
+            url = 'http://60.205.163.65:8080/user/stake/racingnum/info?racingNum='+$scope.dateIssue;
+        }
+
+        initEncrypt(url,null);
+        $http({
+            url :  url,
+            method : 'get'
+        }).then(function(res){
+            // console.log(res,'详情结果');
+
+            var resData = res.data;
+            if(resData.result == 'NO_LOGIN'){
+                $state.go('login');
+                return;
+            }
+            if(resData.result=='ERROR'){
+                alert(resData.message);
+                return;
+            }
+
+            if($scope.type == 'byIssue'){
+                $scope.lotteryRestut = resData.data.result ? resData.data.result.join(''):'';
+            }
+            $scope.money = resData.data.stakeAmount;
+            $scope.number = resData.data.stakeCount;
+            $scope.fitloss = resData.data.incomeAmount;
+            $scope.allfitloss = resData.data.deficitAmount;
+            maketableDate(resData.data.stakeVo);
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
+
 
 
 }]);
