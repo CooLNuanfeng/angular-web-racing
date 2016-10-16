@@ -1361,7 +1361,32 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
 
 }]).controller('listCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "操作记录";
-    $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
+    // $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
+
+    function getInfo(){
+        initEncrypt('http://60.205.163.65:8080/user/point',null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/point',
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var resData = res.data;
+           if(resData.result=='ERROR'){
+               alert(resData.message);
+               return;
+           }
+           $scope.total = resData.data.totalPoints;
+           $scope.surplus = resData.data.userPoints;
+           $scope.player = resData.data.membersPoints;
+
+           initData();
+       },function(){
+           alert('请求失败，请重试或缺失必要内容');
+       });
+    }
+    getInfo();
+
+
 
     //默认选择
     $scope.status = 1;
@@ -1399,7 +1424,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
            alert('请求失败，请重试或缺失必要内容');
         });
     }
-    initData();
+
 
     //分页
     $scope.goPage = function(page){

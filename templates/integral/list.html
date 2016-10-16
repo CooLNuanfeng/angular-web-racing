@@ -1,6 +1,12 @@
 <div class="container-fluid" ng-controller="listCtrl">
     <h4>{{text}}</h4>
-    <p class="chose-box">{{info}}</p>
+    <div class="chose-box">
+        <ol>
+            <li>当前总积分: {{total}}</li>
+            <li>当前结余积分: {{surplus}}</li>
+            <li>玩家总积分: {{player}}</li>
+        </ol>
+    </div>
     <div class="row chose-box">
         <div class="col-md-3">
             <div class="checkbox">
