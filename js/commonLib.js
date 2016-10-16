@@ -9,6 +9,8 @@ myApp.directive('clearTd',function(){
         }
     };
 });
+
+
 //押注  td
 myApp.directive('myTd',function(){
     return {
@@ -192,11 +194,11 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         },
         // 成功返回了响应
         response: function(res) {
-            //console.log(res,'response config success');
+            console.log(res,'response config success');
             if(res.data.result === 'NO_LOGIN') {
                 console.log('登录态丢失');
                 $injector.get('$state').transitionTo('login');
-                return $q.reject(response);
+                //return $q.reject(response);
             }
             return res;
         },

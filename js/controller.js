@@ -817,7 +817,7 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
                 alert(data.message);
             }
             if(data.result=='SUCCESS'){
-                $scope.tableData = data.data[0];
+                $scope.tableData = data.data;
                 console.log($scope.tableData,'dssfsdfsdfs');
                 //分页
                 $scope.currentPage = data.page;
@@ -843,7 +843,6 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
             alert('赔率不为空');
             return;
         }
-        $scope.tableData[$scope.queryKey] = $scope.odds;
         initEncrypt('http://60.205.163.65:8080/user/robot/rate',$scope.tableData);
         $http({
             url : 'http://60.205.163.65:8080/user/robot/rate',
@@ -854,10 +853,12 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
             var data = res.data;
             if(data.result=='ERROR'){
                 alert(data.message);
+                return;
             }
             if(data.result=='SUCCESS'){
                 alert('修改成功');
-                initData();
+                $scope.tableData[$scope.queryKey] = $scope.odds;
+                //initData();
             }
         },function(){
             alert('请求失败，请重试或缺失必要内容');
@@ -952,9 +953,9 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     $scope.selectActive = 'byDate';
 
     function byDate(){
-        initEncrypt('http://60.205.163.65:8080/user/members/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        initEncrypt('http://60.205.163.65:8080/user/members/income/day?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
         $http({
-            url : 'http://60.205.163.65:8080/user/members/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            url : 'http://60.205.163.65:8080/user/members/income/day?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
             method : 'get'
         }).then(function(res){
             var data = res.data;
@@ -974,9 +975,9 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         });
     }
     function byIssue(){
-        initEncrypt('http://60.205.163.65:8080/user/members/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
+        initEncrypt('http://60.205.163.65:8080/user/members/income/racing?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
         $http({
-            url : 'http://60.205.163.65:8080/user/members/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
+            url : 'http://60.205.163.65:8080/user/members/income/racing?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
             method : 'get'
         }).then(function(res){
             var data = res.data;
@@ -1003,53 +1004,69 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         $timeout.cancel(timer);
         timer = $timeout(function(){
             console.log($scope.nickname);
-            //initEncrypt('./data/list.php',null);
+            initEncrypt('http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,null);
             $http({
-                url : './data/list.php',
+                url : 'http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,
                 method : 'get'
             }).then(function(res){
-                var data = res.data;
+                var resData = res.data;
                 // console.log(res);
                 // if(data.result == 'SUCCESS'){
                 //     $scope.nicklist = true;
                 //     $scope.listItems = data.data;
                 // }
 
-                if(data.result=='ERROR'){
-                    alert(data.message);
+                if(resData.result=='ERROR'){
+                    alert(resData.message);
                     return;
                 }
 
-                if(res.status =='SUCCESS'){
-                    console.log(res);
+                if(resData.result =='SUCCESS'){
                     $scope.nicklist = true;
-                    $scope.listItems = data.data;
+                    $scope.listItems = resData.data;
                 }
-
-            },function(){
 
             });
 
         },300);
     };
     $scope.listClick = function(str){
+        console.log(str,'click');
         $scope.nicklist = false;
         $scope.nickname = str;
+        $scope.queryNickName = str;
+    };
+
+    $scope.blur = function(){
+        $timeout(function(){
+            $scope.nicklist = false;
+        },300);
     };
 
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
-        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
         byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
-        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
         $scope.queryIssue = $scope.issue;
         byIssue();
     };
@@ -1098,6 +1115,9 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     $scope.queryType = '';
     $scope.queryPage = '';
 
+    $scope.type = 1;
+
+
     function initEncrypt(url,bodyQuery){
         //console.log(url,'url');
         var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
@@ -1131,11 +1151,15 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
 
     initData();
 
-
     $scope.search = function(){
         console.log($scope.startTime,$scope.endTime,$scope.type);
-        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
         $scope.queryType = $scope.type;
         initData();
     };
@@ -1391,6 +1415,7 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
                 alert(data.message);
                 return;
             }
+
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -1429,16 +1454,27 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
-        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
         byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
-        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
         $scope.queryIssue = $scope.issue;
         byIssue();
     };
@@ -1561,16 +1597,27 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
     $scope.searchByDate = function() {
         console.log('search by date');
         console.log($scope.startTime,$scope.endTime);
-        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
         byDate();
     };
 
     $scope.searchByIssue = function() {
         console.log('search by issue');
         console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
-        $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
         byIssue();
     };
 
