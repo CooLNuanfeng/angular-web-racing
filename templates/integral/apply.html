@@ -1,9 +1,15 @@
 <div ng-controller="applyCtrl">
     <h4>{{text}}</h4>
-    <p class="chose-box">{{info}}</p>
+    <div class="chose-box">
+        <ol>
+            <li>当前总积分: {{total}}</li>
+            <li>当前结余积分: {{surplus}}</li>
+            <li>玩家总积分: {{player}}</li>
+        </ol>
+    </div>
     <div class="row">
         <div class="col-md-12">
-            <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">新增</button>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#myModal" ng-click="toModal('add')">新增</button>
         </div>
     </div>
     <div class="row chose-box">
@@ -49,11 +55,16 @@
                     <tr ng-repeat="row in tableData track by $index">
                         <td>{{$index+1}}</td>
                         <td>{{row.appPoints}}</td>
-                        <td>{{row.operationComment}}</td>
-                        <td>{{row.operationTime}}</td>
-                        <td>{{row.status}}</td>
+                        <td>{{row.appComment}}</td>
+                        <td>{{row.appTime | date: 'yyyy-MM-dd'}}</td>
                         <td>
-                            <a class='btn btn-sm btn-default' href="javascript:;" ng-click="cancel(row.id)">取消</a>
+                            {{row.status=='UNTREATED'?'申请中':''}}
+                            {{row.status=='AUDIT'?'已批准':''}}
+                            {{row.status=='REJECT'?'已拒绝':''}}
+                            {{row.status=='CANCEL'?'已取消':''}}
+                        </td>
+                        <td>
+                            <button class='btn btn-sm btn-default' ng-click="toModal('cancel',row.id)" data-toggle="modal" data-target="#myModal">取消</button>
                         </td>
                     </tr>
                 </tbody>
@@ -75,11 +86,11 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h4 class="modal-title">新增申请</h4>
+            <h4 class="modal-title">{{title}}</h4>
           </div>
           <div class="modal-body">
               <div class="form-horizontal">
-                <div class="form-group">
+                <div class="form-group" ng-show="moneyShow">
                   <label class='control-label col-sm-3'>金额: </label>
                   <div class="col-sm-7">
                       <input type="text" class="form-control" placeholder="请输入金额" ng-model="money">

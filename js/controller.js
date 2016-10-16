@@ -462,6 +462,7 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
 myApp.controller('lotterylistCtrl',['$scope','$http','localStorageService','encrypt',function($scope,$http,localStorageService,encrypt){
     $scope.text = '开奖列表页';
 
+    $scope.queryPage = 1;
 
     function initEncrypt(url,bodyQuery){
         //console.log(url,'url');
@@ -471,26 +472,35 @@ myApp.controller('lotterylistCtrl',['$scope','$http','localStorageService','encr
         //console.log(authoriza,'set');
     }
 
-    initEncrypt('http://60.205.163.65:8080/user/racing/result',null);
-    $http({
-        url : 'http://60.205.163.65:8080/user/racing/result',
-        method : 'get',
-    }).then(function(res){
-        console.log(res,'开奖列表');
-        var data = res.data;
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/racing/result?page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/racing/result?page='+$scope.queryPage,
+            method : 'get',
+        }).then(function(res){
+            console.log(res,'开奖列表');
+            var data = res.data;
 
-        if(data.result=='ERROR'){
-            alert(data.message);
-            return;
-        }
-        $scope.tableData = data.data;
-        //分页
-        $scope.currentPage = data.page;
-        //$scope.pageSize = data.pageSize;
-        $scope.total = data.totalPage;
-    },function(err){
-        alert('请求失败，请重试或缺失必要内容');
-    });
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+            //分页
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;
+            $scope.total = data.totalPage;
+        },function(err){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        console.log(page);
+        initData();
+    };
 
 }]);
 
@@ -1180,12 +1190,9 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     $scope.selectClass = $location.path().substr(1);
 }]).controller('applyCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
     $scope.text = "申请积分";
-    $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
 
-    $scope.queryStatus = '';
-    $scope.queryStartDate = '';
-    $scope.queryEndDate = '';
-    $scope.queryPage = '';
+    $scope.status = '';
+    $scope.cancelId = '';
 
     function initEncrypt(url,bodyQuery){
         //console.log(url,'url');
@@ -1194,6 +1201,36 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
         //console.log(authoriza,'set');
     }
+
+    function getInfo(){
+        initEncrypt('http://60.205.163.65:8080/user/point',null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/point',
+           method : 'get',
+        }).then(function(res){
+           console.log(res);
+           var resData = res.data;
+           if(resData.result=='ERROR'){
+               alert(resData.message);
+               return;
+           }
+           $scope.total = resData.data.totalPoints;
+           $scope.surplus = resData.data.userPoints;
+           $scope.player = resData.data.membersPoints;
+
+           initData();
+       },function(){
+           alert('请求失败，请重试或缺失必要内容');
+       });
+    }
+    getInfo();
+
+
+    $scope.queryStatus = '';
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+
     function initData(){
         initEncrypt('http://60.205.163.65:8080/user/points?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&status='+$scope.queryStatus+'&page='+$scope.queryPage,null);
         $http({
@@ -1216,7 +1253,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
            alert('请求失败，请重试或缺失必要内容');
         });
     }
-    initData();
+
 
 
 
@@ -1230,60 +1267,82 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         // initData();
     };
 
+    $scope.toModal = function(status,id){
+        if(status == 'add'){
+            $scope.title = '新增申请';
+            $scope.moneyShow = true;
+            $scope.status = status;
+            $scope.money = '';
+            $scope.applyText = '';
+        }
+        if(status == 'cancel'){
+            $scope.title = '取消申请';
+            $scope.moneyShow = false;
+            $scope.status = status;
+            $scope.cancelId = id;
+            $scope.applyText = '';
+        }
+    };
+
     //新增 确认
     $scope.confirm = function() {
-        console.log($scope.applyText,$scope.money);
-        initEncrypt('http://60.205.163.65:8080/user/points',{
-            appComment : $scope.applyText,
-            appPoints : $scope.money
-        });
-        $http({
-           url : 'http://60.205.163.65:8080/user/points',
-           method : 'post',
-           data : {
-               appComment : $scope.applyText,
-               appPoints : $scope.money
-           }
-        }).then(function(res){
-           console.log(res);
-           var data = res.data;
-           if(data.result=='ERROR'){
-               alert(data.message);
-           }
-           if(data.result=='SUCCESS'){
-               alert('操作成功');
-               initData();
-           }
+        if($scope.status == 'add'){
+            initEncrypt('http://60.205.163.65:8080/user/points',{
+                appComment : $scope.applyText,
+                appPoints : $scope.money
+            });
+            $http({
+               url : 'http://60.205.163.65:8080/user/points',
+               method : 'post',
+               data : {
+                   appComment : $scope.applyText,
+                   appPoints : $scope.money
+               }
+            }).then(function(res){
+               console.log(res);
+               var data = res.data;
+               if(data.result=='ERROR'){
+                   alert(data.message);
+               }
+               if(data.result=='SUCCESS'){
+                   alert('操作成功');
+                   initData();
+               }
 
-        }, function(err){
-           alert('请求失败，请重试或缺失必要内容');
-        });
+            }, function(err){
+               alert('请求失败，请重试或缺失必要内容');
+            });
+        }
+
+        if($scope.status == 'cancel'){
+            initEncrypt('http://60.205.163.65:8080/user/points/'+$scope.cancelId+'/status/cancel',{
+                comments : $scope.applyText
+            });
+            $http({
+               url : 'http://60.205.163.65:8080/user/points/'+$scope.cancelId+'/status/cancel',
+               method : 'put',
+               data : {
+                   comments : $scope.applyText
+               }
+
+            }).then(function(res){
+               console.log(res);
+               var data = res.data;
+               if(data.result=='ERROR'){
+                   alert(data.message);
+               }
+               if(data.result=='SUCCESS'){
+                   alert('操作成功');
+                   initData();
+               }
+
+            }, function(err){
+               alert('请求失败，请重试或缺失必要内容');
+            });
+        }
+
     };
 
-
-    //取消
-    $scope.cancel = function(id){
-        console.log(id);
-        initEncrypt('http://60.205.163.65:8080/user/points/status/cancel',null);
-        $http({
-           url : 'http://60.205.163.65:8080/user/points/status/cancel',
-           method : 'put',
-
-        }).then(function(res){
-           console.log(res);
-           var data = res.data;
-           if(data.result=='ERROR'){
-               alert(data.message);
-           }
-           if(data.result=='SUCCESS'){
-               alert('操作成功');
-               initData();
-           }
-
-        }, function(err){
-           alert('请求失败，请重试或缺失必要内容');
-        });
-    };
 
     $scope.search = function(){
         console.log($scope.selection);
