@@ -1067,7 +1067,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         });
     }
 
-    byDate();
+    //byDate();
 
 
     $scope.nickSearch = function(event){
@@ -1273,9 +1273,9 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
                alert(resData.message);
                return;
            }
-           $scope.total = resData.data.totalPoints;
-           $scope.surplus = resData.data.userPoints;
-           $scope.player = resData.data.membersPoints;
+           $scope.totalPoints = resData.data.totalPoints;
+           $scope.surplusPoints = resData.data.userPoints;
+           $scope.playerPoints = resData.data.membersPoints;
 
            initData();
        },function(){
@@ -1439,9 +1439,9 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
                alert(resData.message);
                return;
            }
-           $scope.total = resData.data.totalPoints;
-           $scope.surplus = resData.data.userPoints;
-           $scope.player = resData.data.membersPoints;
+           $scope.totalPoints = resData.data.totalPoints;
+           $scope.surplusPoints = resData.data.userPoints;
+           $scope.playerPoints = resData.data.membersPoints;
 
            initData();
        },function(){
