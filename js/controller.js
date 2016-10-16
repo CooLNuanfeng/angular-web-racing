@@ -1389,9 +1389,9 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
 
 
     //默认选择
-    $scope.status = 1;
+    $scope.status = 'MANAGER_ADD';
 
-    $scope.queryStatus = 1;
+    $scope.queryStatus = 'MANAGER_ADD';
     $scope.queryPage = 1;
 
 
