@@ -1126,7 +1126,7 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     $scope.queryType = '';
     $scope.queryPage = '';
 
-    $scope.type = 1;
+    $scope.type = 'ADD';
 
 
     function initEncrypt(url,bodyQuery){
