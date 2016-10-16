@@ -882,8 +882,12 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
 myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     //页面一进来控制 class active
     $scope.selectClass = $location.path().substr(1);
-}]).controller('playerlistCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+}]).controller('playerlistCtrl',['$scope','$http','$timeout','encrypt','localStorageService',function($scope,$http,$timeout,encrypt,localStorageService){
     $scope.text = "玩家列表管理";
+    //控制搜索
+    var timer = null;
+    $scope.nicklist = false;
+
 
     $scope.queryNickName = '';
     $scope.queryPage = '';
@@ -895,6 +899,54 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
         //console.log(authoriza,'set');
     }
+
+
+
+
+    $scope.nickSearch = function(event){
+        $timeout.cancel(timer);
+        timer = $timeout(function(){
+            console.log($scope.nickname);
+            initEncrypt('http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,null);
+            $http({
+                url : 'http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,
+                method : 'get'
+            }).then(function(res){
+                var resData = res.data;
+                // console.log(res);
+                // if(data.result == 'SUCCESS'){
+                //     $scope.nicklist = true;
+                //     $scope.listItems = data.data;
+                // }
+
+                if(resData.result=='ERROR'){
+                    alert(resData.message);
+                    return;
+                }
+
+                if(resData.result =='SUCCESS'){
+                    $scope.nicklist = true;
+                    $scope.listItems = resData.data;
+                }
+
+            });
+
+        },300);
+    };
+    $scope.listClick = function(str){
+        console.log(str,'click');
+        $scope.nicklist = false;
+        $scope.nickname = str;
+        $scope.queryNickName = str;
+    };
+
+    $scope.blur = function(){
+        $timeout(function(){
+            $scope.nicklist = false;
+        },300);
+    };
+
+
 
     function initData(){
         $http({

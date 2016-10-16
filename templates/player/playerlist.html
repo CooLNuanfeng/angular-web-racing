@@ -2,9 +2,12 @@
     <h4>{{text}}</h4>
     <div class="row chose-box">
         <div class="col-md-4 form-inline">
-            <div class="form-group">
+            <div class="form-group"  style="position:relative;">
               <label class='control-label'>昵 称: </label>
-              <input type="text" class="form-control" ng-model='nickname' placeholder="请输入昵称">
+              <input type="text" class="form-control" ng-model='nickname' ng-keyup="nickSearch($event);" placeholder="请输入昵称" ng-blur="blur()">
+              <ul class="nick-list" ng-show="nicklist" style="width:211px; padding-left:40px;">
+                  <li ng-repeat="item in listItems track by $index" ng-click="listClick(item)">{{item}}</li>
+              </ul>
             </div>
         </div>
         <div class="col-md-4">
