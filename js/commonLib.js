@@ -194,6 +194,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         response: function(res) {
             //console.log(res,'response config success');
             if(res.data.result === 'NO_LOGIN') {
+                console.log('登录态丢失');
                 $injector.get('$state').transitionTo('login');
                 return $q.reject(response);
             }

@@ -478,6 +478,11 @@ myApp.controller('lotterylistCtrl',['$scope','$http','localStorageService','encr
     }).then(function(res){
         console.log(res,'开奖列表');
         var data = res.data;
+
+        if(data.result=='ERROR'){
+            alert(data.message);
+            return;
+        }
         $scope.tableData = data.data;
         //分页
         $scope.currentPage = data.page;
@@ -550,7 +555,7 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
         var params = makeSendData.makeParams($scope.sendData,$scope.selectedObj,$scope.money);
         params.racingNum = $scope.racingNum;
 
-        console.log(params);
+        //console.log(params);
         initEncrypt('http://60.205.163.65:8080/user/stake',params);
         $http({
             url : 'http://60.205.163.65:8080/user/stake',
@@ -887,6 +892,10 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
            console.log(res);
            var data = res.data;
 
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
            $scope.tableData = data.data;
            //分页
            $scope.currentPage = data.page;
@@ -950,6 +959,10 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         }).then(function(res){
             var data = res.data;
 
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -968,6 +981,10 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         }).then(function(res){
             var data = res.data;
 
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -991,17 +1008,22 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
                 url : './data/list.php',
                 method : 'get'
             }).then(function(res){
-                // var data = res.data;
+                var data = res.data;
                 // console.log(res);
                 // if(data.result == 'SUCCESS'){
                 //     $scope.nicklist = true;
                 //     $scope.listItems = data.data;
                 // }
 
-                if(res.status ==200){
+                if(data.result=='ERROR'){
+                    alert(data.message);
+                    return;
+                }
+
+                if(res.status =='SUCCESS'){
                     console.log(res);
                     $scope.nicklist = true;
-                    $scope.listItems = res.data;
+                    $scope.listItems = data.data;
                 }
 
             },function(){
@@ -1091,7 +1113,10 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         }).then(function(res){
            console.log(res);
            var data = res.data;
-
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
            $scope.tableData = data.data;
            //分页
            $scope.currentPage = data.page;
@@ -1152,7 +1177,10 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         }).then(function(res){
            console.log(res);
            var data = res.data;
-
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
            $scope.tableData = data.data;
            //分页
            $scope.currentPage = data.page;
@@ -1273,7 +1301,10 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
         }).then(function(res){
            console.log(res);
            var data = res.data;
-
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
            $scope.tableData = data.data;
            //分页
            $scope.currentPage = data.page;
@@ -1295,6 +1326,7 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     //change
     $scope.change = function(){
         console.log($scope.status);
+        $scope.queryStatus = $scope.status;
         initData();
     };
 
@@ -1355,7 +1387,10 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
             method : 'get'
         }).then(function(res){
             var data = res.data;
-
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -1373,7 +1408,10 @@ myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
             method : 'get'
         }).then(function(res){
             var data = res.data;
-
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -1473,7 +1511,10 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
             method : 'get'
         }).then(function(res){
             var data = res.data;
-
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
@@ -1491,7 +1532,10 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
             method : 'get'
         }).then(function(res){
             var data = res.data;
-
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
             $scope.tableData = data.data;
 
             $scope.currentPage = data.page;
