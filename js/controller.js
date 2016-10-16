@@ -527,6 +527,7 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
     $scope.selectClass = $location.path().substr(1);
 
     //console.log(baseData);
+    // 初始化 格式数据
     $scope.sendData = initSendData.init(baseData.sendData);
     $scope.tableOne = baseData.tab1;
     $scope.tableTwo = baseData.tab2;
@@ -579,6 +580,12 @@ myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filte
             }
             if(data.result=='SUCCESS'){
                 alert('押注成功');
+
+                $('.table-box td').removeClass('selected');
+                $scope.money = '';
+                $scope.selectedObj = {};
+                $scope.sendData = initSendData.init(baseData.sendData);
+
             }
         },function(){
             alert('请求失败，请重试或缺失必要内容');
