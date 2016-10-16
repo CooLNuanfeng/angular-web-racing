@@ -1347,8 +1347,13 @@ myApp.controller('integralCtrl',['$scope','$location',function($scope,$location)
     $scope.search = function(){
         console.log($scope.selection);
         $scope.queryStatus = $scope.queryStatus;
-        $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
-        $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
         $scope.queryPage = 1;
         initData();
     };

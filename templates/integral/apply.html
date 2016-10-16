@@ -64,7 +64,7 @@
                             {{row.status=='CANCEL'?'已取消':''}}
                         </td>
                         <td>
-                            <button class='btn btn-sm btn-default' ng-click="toModal('cancel',row.id)" data-toggle="modal" data-target="#myModal">取消</button>
+                            <button class='btn btn-sm btn-default' ng-if="row.status=='UNTREATED'" ng-click="toModal('cancel',row.id)" data-toggle="modal" data-target="#myModal">取消</button>
                         </td>
                     </tr>
                 </tbody>
