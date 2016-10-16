@@ -843,6 +843,7 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
             alert('赔率不为空');
             return;
         }
+        $scope.tableData[$scope.queryKey] = $scope.odds;
         initEncrypt('http://60.205.163.65:8080/user/robot/rate',$scope.tableData);
         $http({
             url : 'http://60.205.163.65:8080/user/robot/rate',
@@ -857,8 +858,8 @@ myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
             }
             if(data.result=='SUCCESS'){
                 alert('修改成功');
-                $scope.tableData[$scope.queryKey] = $scope.odds;
-                //initData();
+                //$scope.tableData[$scope.queryKey] = $scope.odds;
+                initData();
             }
         },function(){
             alert('请求失败，请重试或缺失必要内容');
