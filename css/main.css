@@ -46,7 +46,7 @@ button, input { outline: none !important; }
 
 table thead th { font-size: 18px; font-weight: bold; text-align: center; vertical-align: middle !important; }
 table tbody td { cursor: pointer; text-align: center; vertical-align: middle !important; }
-table tbody .selected { background-color: #dff0d8; }
+table tbody .selected { background-color: #01a6e3; }
 
 .item-td { overflow: hidden; }
 .item-td p { float: left; margin: 0; font-size: 16px; }
