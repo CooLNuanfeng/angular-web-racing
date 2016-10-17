@@ -34,7 +34,7 @@ myApp.directive('myTd',function(){
                     code = scope.code, // 冠亚 key
                     tab = attr.tab, // 1-5 or 6-10 or 冠亚
                     trid = attr.trid; //行号
-                //console.log(key,rank,trid,code);
+                ////console.log(key,rank,trid,code);
                 if($('.table-box').hasClass('disabled')){
                     return;
                 }
@@ -110,7 +110,7 @@ myApp.directive('tabActive',function(){
 //         restrict: 'A',
 //         link: function (scope, elm, attrs){
 //             scope.isLoading = function () {
-//                 //console.log($http,'$http.pendingRequests');
+//                 ////console.log($http,'$http.pendingRequests');
 //                 return $http.pendingRequests.length > 0;
 //             };
 //             scope.$watch(scope.isLoading,function(v){
@@ -131,7 +131,7 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
         var queryObj = {};
         var start = arrUrl[1].indexOf("/");
         var relUrl = arrUrl[1].substring(start);
-        console.log(relUrl,'relUrl');
+        //console.log(relUrl,'relUrl');
         var path = '';
         if (relUrl.indexOf("?") != -1) {
             path = relUrl.split("?")[0];
@@ -152,7 +152,7 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
     return {
         getAuthor: function(url, bodyQuery,secretKey) {
             var urlObj = getUrlInfo(url,bodyQuery);
-            console.log(urlObj,'urlObj');
+            //console.log(urlObj,'urlObj');
             //return;
             if(angular.isObject(urlObj.params)){
                 urlObj.searchObj.requestBody = JSON.stringify(urlObj.params);
@@ -162,13 +162,13 @@ myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
                 keyArr.push(key);
             });
             keyArr.sort();
-            //console.log(keyArr);
+            ////console.log(keyArr);
             var keyStr = '';
             angular.forEach(keyArr, function(val, index) {
                 keyStr += urlObj.searchObj[val];
             });
-            console.log(urlObj.path + keyStr + secretKey,'加密的字串');
-            console.log(secretKey,'secretKey');
+            //console.log(urlObj.path + keyStr + secretKey,'加密的字串');
+            //console.log(secretKey,'secretKey');
             return sha1.hash(urlObj.path + keyStr + secretKey).toUpperCase();
         }
     };
@@ -180,7 +180,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
     return {
         // 请求发出之前，可以用于添加各种身份验证信息
         request: function(config) {
-            console.log(config,'config');
+            //console.log(config,'config');
             ///user/members/nicname?nicName=
             if(config.url.indexOf('/user/members/nicname?nicName=')>0){
                 $('.loading-mask').hide();
@@ -189,7 +189,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
             }
             //对所有的请求添加 验证
             if (localStorageService.get('Authorization')) {
-                //console.log(localStorageService.get('Authorization'),'location');
+                ////console.log(localStorageService.get('Authorization'),'location');
                 config.headers.Authorization = localStorageService.get('Authorization');
                 config.headers.Accesskey = localStorageService.get('Accesskey');
             }
@@ -197,15 +197,15 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         },
         // 请求发出时出错
         requestError: function(err) {
-            //console.log('request config error');
+            ////console.log('request config error');
             $('.loading-mask').hide();
             return $q.reject(err);
         },
         // 成功返回了响应
         response: function(res) {
-            console.log(res,'response config success');
+            //console.log(res,'response config success');
             if(res.data.result === 'NO_LOGIN') {
-                console.log('登录态丢失');
+                //console.log('登录态丢失');
                 $injector.get('$state').transitionTo('login');
                 //return $q.reject(response);
             }
@@ -215,7 +215,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         // 返回的响应出错，包括后端返回响应时，设置了非 200 的 http 状态码
         responseError: function(err) {
             $('.loading-mask').hide();
-            //console.log('response config error');
+            ////console.log('response config error');
             return $q.reject(err);
         }
     };
@@ -284,19 +284,19 @@ myApp.factory('makeSendData',function(){
                         case 2:
                         case 3:
                         case 4:
-                            //console.log('大小单双');
+                            ////console.log('大小单双');
                             sendData[key][carSort-1][keyCode[tr-1]] = money;
                             break;
                         case 5:
-                            //console.log('龙');
+                            ////console.log('龙');
                             sendData[key][keyCodeUp[carSort-1]] = money;
                             break;
                         case 6:
-                            //console.log('虎');
+                            ////console.log('虎');
                             sendData[key][keyCodeDown[carSort-1]] = money;
                             break;
                         default :
-                            //console.log('1-10名');
+                            ////console.log('1-10名');
                             sendData[key][tr-7][sortArr[carSort-1]] = money;
                             break;
                     }
@@ -310,11 +310,11 @@ myApp.factory('makeSendData',function(){
                         case 2:
                         case 3:
                         case 4:
-                            //console.log('大小单双5-10');
+                            ////console.log('大小单双5-10');
                             sendData[key][carSort-1][keyCode[tr-1]] = money;
                             break;
                         default :
-                            //console.log('1-10名');
+                            ////console.log('1-10名');
                             sendData[key][tr-5][sortArr[carSort-1]] = money;
                             break;
                     }
