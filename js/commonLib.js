@@ -105,24 +105,24 @@ myApp.directive('tabActive',function(){
 
 
 //loading
-myApp.directive('loading',['$http' ,function ($http){
-    return {
-        restrict: 'A',
-        link: function (scope, elm, attrs){
-            scope.isLoading = function () {
-                //console.log($http,'$http.pendingRequests');
-                return $http.pendingRequests.length > 0;
-            };
-            scope.$watch(scope.isLoading,function(v){
-                if(v){
-                    elm.show();
-                }else{
-                    elm.hide();
-                }
-            });
-        }
-    };
-}]);
+// myApp.directive('loading',['$http' ,function ($http){
+//     return {
+//         restrict: 'A',
+//         link: function (scope, elm, attrs){
+//             scope.isLoading = function () {
+//                 //console.log($http,'$http.pendingRequests');
+//                 return $http.pendingRequests.length > 0;
+//             };
+//             scope.$watch(scope.isLoading,function(v){
+//                 if(v){
+//                     elm.show();
+//                 }else{
+//                     elm.hide();
+//                 }
+//             });
+//         }
+//     };
+// }]);
 
 //拼接加密算法
 myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
@@ -180,6 +180,13 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
     return {
         // 请求发出之前，可以用于添加各种身份验证信息
         request: function(config) {
+            console.log(config,'config');
+            ///user/members/nicname?nicName=
+            if(config.url.indexOf('/user/members/nicname?nicName=')>0){
+                $('.loading-mask').hide();
+            }else{
+                $('.loading-mask').show();
+            }
             //对所有的请求添加 验证
             if (localStorageService.get('Authorization')) {
                 //console.log(localStorageService.get('Authorization'),'location');
@@ -191,6 +198,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         // 请求发出时出错
         requestError: function(err) {
             //console.log('request config error');
+            $('.loading-mask').hide();
             return $q.reject(err);
         },
         // 成功返回了响应
@@ -201,10 +209,12 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
                 $injector.get('$state').transitionTo('login');
                 //return $q.reject(response);
             }
+            $('.loading-mask').hide();
             return res;
         },
         // 返回的响应出错，包括后端返回响应时，设置了非 200 的 http 状态码
         responseError: function(err) {
+            $('.loading-mask').hide();
             //console.log('response config error');
             return $q.reject(err);
         }
