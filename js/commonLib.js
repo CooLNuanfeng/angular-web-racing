@@ -364,12 +364,12 @@ myApp.factory('initSendData',function(){
 myApp.factory('baseData',function(){
     return  {
         'tab1' : [
-            {'codeName':'大','codeValue':1.94,'key':'rankingStakeList'},
-            {'codeName':'小','codeValue':1.94,'key':'rankingStakeList'},
-            {'codeName':'单','codeValue':1.94,'key':'rankingStakeList'},
-            {'codeName':'双','codeValue':1.94,'key':'rankingStakeList'},
-            {'codeName':'龙','codeValue':1.94,'key':'commonStake'},
-            {'codeName':'虎','codeValue':1.94,'key':'commonStake'},
+            {'codeName':'大','codeValue':1.94,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'小','codeValue':1.94,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'单','codeValue':1.94,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'双','codeValue':1.94,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'龙','codeValue':1.94,'key':'commonStake',className:'bgColor-1'},
+            {'codeName':'虎','codeValue':1.94,'key':'commonStake',className:'bgColor-1'},
             {'codeName':'1','codeValue':9.7,'key':'appointStakeList'},
             {'codeName':'2','codeValue':9.7,'key':'appointStakeList'},
             {'codeName':'3','codeValue':9.7,'key':'appointStakeList'},
