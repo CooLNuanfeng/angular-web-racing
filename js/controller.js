@@ -2077,7 +2077,7 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
             }
             $scope.money = resData.data.stakeAmount;
             $scope.number = resData.data.stakeCount;
-            $scope.fitloss = resData.data.incomeAmount;
+            $scope.fitloss = resData.data.stakeAmount;
             $scope.allfitloss = resData.data.deficitAmount;
             $scope.income = resData.data.incomeAmount;
             maketableDate(resData.data.stakeVo);
