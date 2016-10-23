@@ -1,11 +1,9 @@
 <div class="container-fluid" ng-controller="listCtrl">
     <h4>{{text}}</h4>
-    <div class="chose-box">
-        <ol>
-            <li>当前总积分: {{totalPoints}}</li>
-            <li>当前结余积分: {{surplusPoints}}</li>
-            <li>玩家总积分: {{playerPoints}}</li>
-        </ol>
+    <div class="chose-box row">
+        <div class="col-md-4">当前总积分: {{totalPoints}}</div>
+        <div class="col-md-4">当前结余积分: {{surplusPoints}}</div>
+        <div class="col-md-4">玩家总积分: {{playerPoints}}</div>
     </div>
     <div class="row chose-box">
         <div class="col-md-3">
@@ -78,8 +76,8 @@
                                 {{row.type == 'OFFER' ? '报盘' : ''}}
                                 {{row.type == 'LOTTERY' ? '开奖' : ''}}
                             </td>
-                            <td>{{row.operationTotalPoints | date: 'yyyy-MM-dd'}}</td>
-                            <td>{{row.resultTotalPoints}}<span class="paddingTips">|</span>{{row.userStakeAmount}}</td>
+                            <td>{{row.operationTime | date: 'yyyy-MM-dd'}}</td>
+                            <td>{{row.operationTotalPoints}}<span class="paddingTips">|</span>{{row.resultTotalPoints}}</td>
                             <td>{{row.operationUserPoints}}<span class="paddingTips">|</span>{{row.resultUserPoints}}</td>
                             <td>{{row.operationMembersPoints}}<span class="paddingTips">|</span>{{row.resultMembersPoints}}</td>
                         </tr>

@@ -348,6 +348,7 @@ myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filt
             $scope.preResult = json.preResult;
             $scope.nowStatus = json.stageName;
             $scope.preRacingNum = json.preRacingNum;
+            $scope.money = resData.data.totalRacingStakeAmount;
 
             maketableDate(json.stakeVo);
 
@@ -2078,6 +2079,7 @@ myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
             $scope.number = resData.data.stakeCount;
             $scope.fitloss = resData.data.incomeAmount;
             $scope.allfitloss = resData.data.deficitAmount;
+            $scope.income = resData.data.incomeAmount;
             maketableDate(resData.data.stakeVo);
 
         },function(){

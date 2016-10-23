@@ -1,11 +1,9 @@
 <div ng-controller="applyCtrl">
     <h4>{{text}}</h4>
-    <div class="chose-box">
-        <ol>
-            <li>当前总积分: {{totalPoints}}</li>
-            <li>当前结余积分: {{surplusPoints}}</li>
-            <li>玩家总积分: {{playerPoints}}</li>
-        </ol>
+    <div class="chose-box row">
+        <div class="col-md-4">当前总积分: {{totalPoints}}</div>
+        <div class="col-md-4">当前结余积分: {{surplusPoints}}</div>
+        <div class="col-md-4">玩家总积分: {{playerPoints}}</div>
     </div>
     <div class="row">
         <div class="col-md-12">

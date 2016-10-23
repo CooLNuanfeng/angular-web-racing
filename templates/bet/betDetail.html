@@ -22,8 +22,15 @@
             <p>{{fitloss}}</p>
         </div>
         <div class="col-md-2">
+            <h4>盈利</h4>
+            <p>{{income}}</p>
+        </div>
+        <div class="col-md-2">
             <h4>总盈亏</h4>
-            <p>{{allfitloss}}</p>
+            <p>
+                <span ng-if="allfitloss<0" class="red">{{allfitloss}}</span>
+                <span ng-if="allfitloss>=0">{{allfitloss}}</span>
+            </p>
         </div>
     </div>
     <h2 class="text-center text-primary">1-10名</h2>
