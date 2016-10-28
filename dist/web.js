@@ -1,0 +1,2985 @@
+var myApp = angular.module('myApp',['ui.router','ui.sortable','bw.paging','ngSanitize','moment-picker','LocalStorageModule','angular-sha1']);
+
+myApp.config(['$stateProvider','$urlRouterProvider','$httpProvider','localStorageServiceProvider',function($stateProvider,$urlRouterProvider,$httpProvider,localStorageServiceProvider){
+
+    //所有请求添加header配置
+    $httpProvider.interceptors.push('HttpInterceptor');
+
+
+    // 路由部分
+    $urlRouterProvider.otherwise('/login');
+
+
+    //实时开奖
+    $stateProvider.state('login',{
+        url : '/login',
+        templateUrl : './templates/login/login.html'
+    }).state('realtime',{
+        url : '/realtime',
+        templateUrl : './templates/realtime/realtime.html',
+    })
+    //开奖列表
+    .state('lottery',{
+        url : '/lottery',
+        templateUrl : './templates/lottery/lottery.html',
+    }).state('lottery.list',{
+        url : '/list',
+        templateUrl : './templates/lottery/lotterylist.html',
+        controller : 'lotterylistCtrl'
+    })
+    //押注
+    .state('betshow',{
+        url : '/betshow',
+        templateUrl : './templates/betshow/betshow.html',
+    })
+    //机器人管理
+    .state('robot',{
+        url : '/robot',
+        templateUrl : './templates/robot/robot.html',
+    }).state('robot.status',{
+        url : '/status',
+        templateUrl : './templates/robot/status.html'
+    }).state('robot.odds',{
+        url : '/odds',
+        templateUrl : './templates/robot/odds.html'
+    })
+    //玩家管理
+    .state('player',{
+        url : '/player',
+        templateUrl : './templates/player/player.html',
+    }).state('player.report',{
+        url : '/report',
+        templateUrl : './templates/player/playerport.html'
+    }).state('player.list',{
+        url : '/list',
+        templateUrl : './templates/player/playerlist.html'
+    }).state('playerDetail',{
+        url : '/playerDetail/:memberId',
+        templateUrl : './templates/player/playerdetail.html'
+    }).state('reportDetail',{
+        url : '/reportDetail/:racingNum&:count',
+        templateUrl : './templates/bet/betDetail.html'
+    })
+    //积分管理
+    .state('integral',{
+        url : '/integral',
+        templateUrl : './templates/integral/integral.html',
+    }).state('integral.apply',{
+        url : '/apply',
+        templateUrl : './templates/integral/apply.html',
+    }).state('integral.list',{
+        url : '/list',
+        templateUrl : './templates/integral/list.html',
+    }).state('integralDetail',{
+        url : '/integralDetail/?item1&item2',
+        templateUrl : './templates/integral/integralDetail.html',
+    })
+    //盈亏报表
+    .state('profitlose',{
+        url : '/profitlose',
+        templateUrl : './templates/profitlose/profitlose.html',
+    }).state('profitlose.other',{
+        url : '/profitloseOther',
+        templateUrl : './templates/profitlose/other.html',
+    })
+    //押注报表
+    .state('bet',{
+        url : '/bet',
+        templateUrl : './templates/bet/bet.html',
+    }).state('bet.otherbet',{
+        url : '/otherBet',
+        templateUrl : './templates/bet/other.html',
+    }).state('betDetail',{
+        url : '/betDetail/:type&:category',
+        templateUrl : './templates/bet/betDetail.html'
+    })
+    //个人信息管理
+    .state('users',{
+        url : '/users',
+        templateUrl : './templates/users/users.html',
+    }).state('users.all',{
+        url : '/allUser',
+        templateUrl : './templates/users/all.html',
+    });
+
+}]);
+//监控所有路由 清除 实时监控的 请求定时器
+myApp.run(['$state','$rootScope','$timeout','localStorageService',function($state,$rootScope,$timeout,localStorageService){
+    $rootScope.$on('$stateChangeStart',function(event,toState,toParams,fromState,fromParams,options){
+        //console.log('url router change');
+        $timeout.cancel($rootScope.yztimer);
+        $timeout.cancel($rootScope.timer);
+        if(toState.name=='login')return;// 如果是进入登录界面则允许
+        if(!localStorageService.get('username')){
+    		event.preventDefault();// 取消默认跳转行为
+    		$state.go("login");//跳转到登录界面
+    	}
+    });
+}]);
+
+// mainctrl
+// myApp.controller('mainctrl',['$scope',function($scope){
+//
+// }]);
+//
+// //导航控制器
+// myApp.controller('navLoginCtrl',['$scope',function($scope){
+//
+// }]);
+
+//顶部导航的 用户登录显示
+myApp.controller('userLoginedCtrl',['$scope','$state','$rootScope','localStorageService',function($scope,$state,$rootScope,localStorageService){
+    $scope.username = localStorageService.get('username');
+    $scope.logout = function(){
+        localStorageService.clearAll();
+        $state.go('login');
+    };
+}]);
+
+
+//用户登录
+myApp.controller('loginCtrl',['$scope','$http','$state','$rootScope','localStorageService',function($scope,$http,$state,$rootScope,localStorageService){
+
+
+    if(!localStorageService.isSupported){
+        alert('您的浏览器版本太低，请升级高版本浏览器');
+        return;
+    }
+
+    if(localStorageService.get('username')){
+        $rootScope.username = localStorageService.get('username');
+        $state.go('realtime');
+        return;
+    }
+
+    //登录请求获取 Accesskey 和 secretKey
+    $scope.loginSubmit = function(){
+        var params = {
+            userName : $scope.username,
+            password : $scope.password
+        };
+        $http({
+            url : 'http://60.205.163.65:8080/user/web/login',
+            method : 'post',
+            headers : {
+                'Content-Type': 'application/json;charset=utf-8;'
+            },
+            data: params
+        }).then(function(res){
+            //console.log(res,'分盘用户登录');
+
+            var data = res.data;
+            if(data.result == 'SUCCESS'){
+                //var userType = true; // 用户的级别
+                $rootScope.username = $scope.username;
+                if(localStorageService.isSupported) {
+                    localStorageService.set('Accesskey',data.data.accessKey);
+                    localStorageService.set('secretKey',data.data.securityKey);
+                    localStorageService.set('username',$scope.username);
+                    //localStorageService.set('userType',userType);
+                }else{
+                    alert('您的浏览器版本太低，请升级高版本浏览器');
+                }
+                $state.go('realtime');
+            }else{
+                alert('用户名或密码有误请重试');
+            }
+
+
+        },function(err){
+            //console.log(err);
+        });
+    };
+}]);
+
+
+//实时开奖
+myApp.controller('realtimeCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','encrypt','localStorageService',function($scope,$rootScope,$http,$timeout,$filter,$state,encrypt,localStorageService){
+
+    $scope.table1 = [];
+    $scope.table2 = [];
+    function maketableDate(json){
+        //1-10 表格数据
+        $scope.table1 = [
+            //1
+            [
+                {key:'大',value:1.988,money:json.rankingStakeList[0].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[1].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[2].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[3].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[4].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[5].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[6].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[7].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[8].big},
+                {key:'大',value:1.988,money:json.rankingStakeList[9].big}
+            ],
+            //2
+            [
+                {key:'小',value:1.988,money:json.rankingStakeList[0].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[1].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[2].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[3].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[4].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[5].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[6].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[7].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[8].small},
+                {key:'小',value:1.988,money:json.rankingStakeList[9].small}
+            ],
+            //3
+            [
+                {key:'单',value:1.988,money:json.rankingStakeList[0].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[1].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[2].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[3].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[4].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[5].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[6].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[7].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[8].odd},
+                {key:'单',value:1.988,money:json.rankingStakeList[9].odd}
+            ],
+            //4
+            [
+                {key:'双',value:1.988,money:json.rankingStakeList[0].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[1].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[2].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[3].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[4].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[5].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[6].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[7].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[8].even},
+                {key:'双',value:1.988,money:json.rankingStakeList[9].even}
+            ],
+            //5
+            [
+                {key:'龙',value:1.988,money:json.commonStake.firstUp},
+                {key:'龙',value:1.988,money:json.commonStake.secondUp},
+                {key:'龙',value:1.988,money:json.commonStake.thirdUp},
+                {key:'龙',value:1.988,money:json.commonStake.fourthUp},
+                {key:'龙',value:1.988,money:json.commonStake.fifthUp},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''}
+            ],
+            //6
+            [
+                {key:'虎',value:1.988,money:json.commonStake.firstDowm},
+                {key:'虎',value:1.988,money:json.commonStake.secondDowm},
+                {key:'虎',value:1.988,money:json.commonStake.thirdDowm},
+                {key:'虎',value:1.988,money:json.commonStake.fourthDowm},
+                {key:'虎',value:1.988,money:json.commonStake.fifthDowm},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''},
+                {key:'',value:'',money:''}
+            ],
+            //7
+            [
+                {key:1,value:9.94,money:json.appointStakeList[0].first},
+                {key:1,value:9.94,money:json.appointStakeList[0].second},
+                {key:1,value:9.94,money:json.appointStakeList[0].third},
+                {key:1,value:9.94,money:json.appointStakeList[0].fourth},
+                {key:1,value:9.94,money:json.appointStakeList[0].fifth},
+                {key:1,value:9.94,money:json.appointStakeList[0].sixth},
+                {key:1,value:9.94,money:json.appointStakeList[0].seventh},
+                {key:1,value:9.94,money:json.appointStakeList[0].eighth},
+                {key:1,value:9.94,money:json.appointStakeList[0].ninth},
+                {key:1,value:9.94,money:json.appointStakeList[0].tenth}
+            ],
+            //8
+            [
+                {key:2,value:9.94,money:json.appointStakeList[1].first},
+                {key:2,value:9.94,money:json.appointStakeList[1].second},
+                {key:2,value:9.94,money:json.appointStakeList[1].third},
+                {key:2,value:9.94,money:json.appointStakeList[1].fourth},
+                {key:2,value:9.94,money:json.appointStakeList[1].fifth},
+                {key:2,value:9.94,money:json.appointStakeList[1].sixth},
+                {key:2,value:9.94,money:json.appointStakeList[1].seventh},
+                {key:2,value:9.94,money:json.appointStakeList[1].eighth},
+                {key:2,value:9.94,money:json.appointStakeList[1].ninth},
+                {key:2,value:9.94,money:json.appointStakeList[1].tenth}
+            ],
+            //9
+            [
+                {key:3,value:9.94,money:json.appointStakeList[2].first},
+                {key:3,value:9.94,money:json.appointStakeList[2].second},
+                {key:3,value:9.94,money:json.appointStakeList[2].third},
+                {key:3,value:9.94,money:json.appointStakeList[2].fourth},
+                {key:3,value:9.94,money:json.appointStakeList[2].fifth},
+                {key:3,value:9.94,money:json.appointStakeList[2].sixth},
+                {key:3,value:9.94,money:json.appointStakeList[2].seventh},
+                {key:3,value:9.94,money:json.appointStakeList[2].eighth},
+                {key:3,value:9.94,money:json.appointStakeList[2].ninth},
+                {key:3,value:9.94,money:json.appointStakeList[2].tenth}
+            ],
+            //10
+            [
+                {key:4,value:9.94,money:json.appointStakeList[3].first},
+                {key:4,value:9.94,money:json.appointStakeList[3].second},
+                {key:4,value:9.94,money:json.appointStakeList[3].third},
+                {key:4,value:9.94,money:json.appointStakeList[3].fourth},
+                {key:4,value:9.94,money:json.appointStakeList[3].fifth},
+                {key:4,value:9.94,money:json.appointStakeList[3].sixth},
+                {key:4,value:9.94,money:json.appointStakeList[3].seventh},
+                {key:4,value:9.94,money:json.appointStakeList[3].eighth},
+                {key:4,value:9.94,money:json.appointStakeList[3].ninth},
+                {key:4,value:9.94,money:json.appointStakeList[3].tenth}
+            ],
+            //11
+            [
+                {key:5,value:9.94,money:json.appointStakeList[4].first},
+                {key:5,value:9.94,money:json.appointStakeList[4].second},
+                {key:5,value:9.94,money:json.appointStakeList[4].third},
+                {key:5,value:9.94,money:json.appointStakeList[4].fourth},
+                {key:5,value:9.94,money:json.appointStakeList[4].fifth},
+                {key:5,value:9.94,money:json.appointStakeList[4].sixth},
+                {key:5,value:9.94,money:json.appointStakeList[4].seventh},
+                {key:5,value:9.94,money:json.appointStakeList[4].eighth},
+                {key:5,value:9.94,money:json.appointStakeList[4].ninth},
+                {key:5,value:9.94,money:json.appointStakeList[4].tenth}
+            ],
+            //12
+            [
+                {key:6,value:9.94,money:json.appointStakeList[5].first},
+                {key:6,value:9.94,money:json.appointStakeList[5].second},
+                {key:6,value:9.94,money:json.appointStakeList[5].third},
+                {key:6,value:9.94,money:json.appointStakeList[5].fourth},
+                {key:6,value:9.94,money:json.appointStakeList[5].fifth},
+                {key:6,value:9.94,money:json.appointStakeList[5].sixth},
+                {key:6,value:9.94,money:json.appointStakeList[5].seventh},
+                {key:6,value:9.94,money:json.appointStakeList[5].eighth},
+                {key:6,value:9.94,money:json.appointStakeList[5].ninth},
+                {key:6,value:9.94,money:json.appointStakeList[5].tenth}
+            ],
+            //13
+            [
+                {key:7,value:9.94,money:json.appointStakeList[6].first},
+                {key:7,value:9.94,money:json.appointStakeList[6].second},
+                {key:7,value:9.94,money:json.appointStakeList[6].third},
+                {key:7,value:9.94,money:json.appointStakeList[6].fourth},
+                {key:7,value:9.94,money:json.appointStakeList[6].fifth},
+                {key:7,value:9.94,money:json.appointStakeList[6].sixth},
+                {key:7,value:9.94,money:json.appointStakeList[6].seventh},
+                {key:7,value:9.94,money:json.appointStakeList[6].eighth},
+                {key:7,value:9.94,money:json.appointStakeList[6].ninth},
+                {key:7,value:9.94,money:json.appointStakeList[6].tenth}
+            ],
+            //14
+            [
+                {key:8,value:9.94,money:json.appointStakeList[7].first},
+                {key:8,value:9.94,money:json.appointStakeList[7].second},
+                {key:8,value:9.94,money:json.appointStakeList[7].third},
+                {key:8,value:9.94,money:json.appointStakeList[7].fourth},
+                {key:8,value:9.94,money:json.appointStakeList[7].fifth},
+                {key:8,value:9.94,money:json.appointStakeList[7].sixth},
+                {key:8,value:9.94,money:json.appointStakeList[7].seventh},
+                {key:8,value:9.94,money:json.appointStakeList[7].eighth},
+                {key:8,value:9.94,money:json.appointStakeList[7].ninth},
+                {key:8,value:9.94,money:json.appointStakeList[7].tenth}
+            ],
+            //15
+            [
+                {key:9,value:9.94,money:json.appointStakeList[8].first},
+                {key:9,value:9.94,money:json.appointStakeList[8].second},
+                {key:9,value:9.94,money:json.appointStakeList[8].third},
+                {key:9,value:9.94,money:json.appointStakeList[8].fourth},
+                {key:9,value:9.94,money:json.appointStakeList[8].fifth},
+                {key:9,value:9.94,money:json.appointStakeList[8].sixth},
+                {key:9,value:9.94,money:json.appointStakeList[8].seventh},
+                {key:9,value:9.94,money:json.appointStakeList[8].eighth},
+                {key:9,value:9.94,money:json.appointStakeList[8].ninth},
+                {key:9,value:9.94,money:json.appointStakeList[8].tenth}
+            ],
+            //16
+            [
+                {key:10,value:9.94,money:json.appointStakeList[9].first},
+                {key:10,value:9.94,money:json.appointStakeList[9].second},
+                {key:10,value:9.94,money:json.appointStakeList[9].third},
+                {key:10,value:9.94,money:json.appointStakeList[9].fourth},
+                {key:10,value:9.94,money:json.appointStakeList[9].fifth},
+                {key:10,value:9.94,money:json.appointStakeList[9].sixth},
+                {key:10,value:9.94,money:json.appointStakeList[9].seventh},
+                {key:10,value:9.94,money:json.appointStakeList[9].eighth},
+                {key:10,value:9.94,money:json.appointStakeList[9].ninth},
+                {key:10,value:9.94,money:json.appointStakeList[9].tenth}
+            ],
+        ];
+        //冠亚组 表格数据
+        $scope.table2 = [
+            [{'key':'3','value':'41','money':json.commonStake.firstSecond3},{'key':'4','value':'41','money':json.commonStake.firstSecond4},{'key':'5','value':'21','money':json.commonStake.firstSecond5},{'key':'6','value':'21','money':json.commonStake.firstSecond6}],
+            [{'key':'7','value':'12','money':json.commonStake.firstSecond7},{'key':'8','value':'12','money':json.commonStake.firstSecond8},{'key':'9','value':'10.3','money':json.commonStake.firstSecond9},{'key':'10','value':'10.3','money':json.commonStake.firstSecond10}],
+            [{'key':'11','value':'8.3','money':json.commonStake.firstSecond11},{'key':'12','value':'10.3','money':json.commonStake.firstSecond12},{'key':'13','value':'10.3','money':json.commonStake.firstSecond13},{'key':'14','value':'12','money':json.commonStake.firstSecond14}],
+            [{'key':'15','value':'12','money':json.commonStake.firstSecond15},{'key':'16','value':'21','money':json.commonStake.firstSecond16},{'key':'17','value':'21','money':json.commonStake.firstSecond17},{'key':'18','value':'41','money':json.commonStake.firstSecond18}],
+            [{'key':'19','value':'12','money':json.commonStake.firstSecond19},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
+            [{'key':'冠亚大','value':'2','money':json.commonStake.firstSecondBig},{'key':'冠亚小','value':'1.63','money':json.commonStake.firstSecondSmall},{'key':'冠亚单','value':'1.63','money':json.commonStake.firstSecondOdd},{'key':'冠亚双','value':'2','money':json.commonStake.firstSecondOdd}]
+        ];
+    }
+
+    //拖拽配置项 jQuery ui
+    $scope.sortableOptions = {
+        axis: "x"
+    };
+
+    //未登录先登录
+    // if(!localStorageService.get('username')){
+    //     $state.go('login');
+    //     return;
+    // }
+
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    // //修改比赛结果的url
+    // var modifyUrl = 'http://192.168.5.109:8080/stake/result';
+    // var modifyflag = true;
+
+
+    $timeout.cancel($rootScope.timer);
+    function action(){
+        initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/stake/configer/info',
+            method : 'get',
+            dataType : 'json',
+        }).then(function(res){
+            //console.log(res.data,'res');
+            var resData = res.data;
+
+            var json = resData.data;
+
+
+            $scope.racingNum = json.racingNum;
+            $scope.stopTime= $filter('toMinSec')(json.endStakeTime);
+            $scope.startTime = $filter('toMinSec')(json.startRacingTime);
+            $scope.todayIncome = json.todayIncome;
+            $scope.preResult = json.preResult;
+            $scope.nowStatus = json.stageName;
+            $scope.preRacingNum = json.preRacingNum;
+            $scope.money = resData.data.totalRacingStakeAmount;
+
+            maketableDate(json.stakeVo);
+
+
+            // if(resData.result==='验签失败'){
+            //     $state.go('login');
+            //     return;
+            // }
+
+            if(resData.result==='ERROR'){
+                //console.log('暂无比赛结果');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = true;
+                $scope.toastMessage = '暂无比赛结果';
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                return;
+            }
+            if(resData.result==='SUCCESS' && resData.data.stage == 4){ // 不可押注
+                //console.log('不可押注');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+
+                return;
+            }
+
+            // if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
+            //     //console.log('计算最优结果中..');
+
+            //     $scope.modifyNotice = '';
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = true;
+            //     $scope.modifying = false;
+            //     return;
+            // }
+
+            // if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
+            //     //console.log('修改比赛结果');
+            //     // config.racingNum = resData.data.racingNum;
+            //     // $('.toast').hide();
+            //     // $('.table-box').addClass('disabled');
+            //     // $('.notice-info').html('现在可以修改比赛结果');
+            //     //modifyResult(resData.data.result);
+            //     // return;
+
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = false;
+            //     $scope.modifying = true;
+            //     if(modifyflag){
+            //         $scope.arrResult = resData.data.result;
+            //         modifyflag = false;
+            //     }
+
+            //     $scope.modifyNotice = '';
+            //     return;
+
+            // }
+
+
+            if(resData.result==='SUCCESS' && resData.data.stage == 1){          //押注阶段
+                //console.log('押注时间');
+
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                $scope.tableDisabled = false;
+            }
+
+        },function(err){
+            //console.log(err);
+        });
+        $rootScope.timer = $timeout(action,1000);
+    }
+    $rootScope.timer = $timeout(action,1000);
+
+
+
+    // //修改比赛结果
+    // $scope.modifyReslut = function(){
+    //     //console.log($scope.arrResult,'drag end');
+    //     initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
+    //     $http({
+    //         url : modifyUrl,
+    //         method : 'put',
+    //         dataType : 'json',
+    //         data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
+    //     }).then(function(res){
+    //         //console.log(res,'modifyReslut');
+    //     },function(err){
+    //         //console.log(err);
+    //         $scope.modifyNotice = '请求失败请重试';
+    //     });
+    // };
+
+
+}]);
+
+//开奖列表
+myApp.controller('lotterylistCtrl',['$scope','$http','localStorageService','encrypt',function($scope,$http,localStorageService,encrypt){
+    $scope.text = '开奖列表页';
+
+    $scope.queryPage = 1;
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/racing/result?page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/racing/result?page='+$scope.queryPage,
+            method : 'get',
+        }).then(function(res){
+            //console.log(res,'开奖列表');
+            var data = res.data;
+
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+            //分页
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;
+            $scope.total = data.totalPage;
+        },function(err){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        //console.log(page);
+        initData();
+    };
+
+}]);
+
+
+
+//分盘的 押注 页
+myApp.controller('betshowCtrl',['$scope','$rootScope','$http','$timeout','$filter','$state','$location','encrypt','localStorageService','baseData','initSendData','makeSendData',function($scope,$rootScope,$http,$timeout,$filter,$state,$location,encrypt,localStorageService,baseData,initSendData,makeSendData){
+    //未登录先登录
+    // if(!localStorageService.get('username')){
+    //     $state.go('login');
+    //     return;
+    // }
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+
+    ////console.log(baseData);
+    // 初始化 格式数据
+    $scope.sendData = initSendData.init(baseData.sendData);
+    $scope.tableOne = baseData.tab1;
+    $scope.tableTwo = baseData.tab2;
+    $scope.tableThree = baseData.tab3;
+
+    //初始状态展示
+    $scope.nowTab = 'one';
+    $scope.selectedObj = {}; //所选的 td 组成的 对象
+    //$scope.selectedClass = false;
+
+    //选项切换
+    $scope.tabChange = function(tab){
+        //console.log('nowtab',tab);
+        $scope.nowTab = tab;
+    };
+    //确认押注
+    $scope.confim = function(){
+        if($scope.stage!==1){
+            alert('当前阶段不能押注');
+            return;
+        }
+
+        var keyCode = ['big','small','odd','even']; //大小单双
+        var keyCodeUp = ['firstUp','secondUp','thirdUp','fourthUp','fifthUp'];//龙
+        var keyCodeDown = ['firstDowm','secondDowm','thirdDowm','fourthDowm','fifthDowm'];//虎
+        var sortArr = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+        var re = /^[0-9]*[1-9][0-9]*$/;
+        if(!$scope.money || !re.test($scope.money)){
+            alert('请输入合法金额，正整数');
+            return;
+        }
+        if(angular.equals({},$scope.selectedObj)){
+            alert('您还没有押注');
+            return;
+        }
+        var params = makeSendData.makeParams($scope.sendData,$scope.selectedObj,$scope.money);
+        params.racingNum = $scope.racingNum;
+
+        ////console.log(params);
+        initEncrypt('http://60.205.163.65:8080/user/stake',params);
+        $http({
+            url : 'http://60.205.163.65:8080/user/stake',
+            method : 'post',
+            data : params
+        }).then(function(res){
+            //console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('押注成功');
+
+                $('.table-box td').removeClass('selected');
+                $scope.money = '';
+                $scope.selectedObj = {};
+                $scope.sendData = initSendData.init(baseData.sendData);
+
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
+    };
+
+    //重置押注
+    $scope.reset = function(){
+        //console.log('reset 押注');
+        $scope.money = '';
+        //$scope.selectedClass = false; // 不起作用
+        $scope.selectedObj = {};
+        $scope.sendData = initSendData.init(baseData.sendData);
+    };
+
+
+    //拖拽配置项 jQuery ui
+    $scope.sortableOptions = {
+        axis: "x"
+    };
+    //每次请求的 url
+    // var urlObj = {
+    //     url : './data/data.php',
+    //     domain : 'http://120.26.75.31:8080',
+    //     path : '/data/data.php',
+    //     searchObj : {},
+    //     params : null
+    // };
+
+    // var authoriza = encrypt.getAuthor(urlObj,localStorageService.get('secretKey'));
+    // localStorageService.set('Authorization',authoriza);
+    // localStorageService.set('Accesskey',localStorageService.get('Accesskey'))
+    // //console.log(authoriza,'set');
+
+
+    //修改比赛结果的url
+    //var modifyUrl = 'http://192.168.5.109:8080/stake/result';
+    //var modifyflag = true;
+
+
+    $timeout.cancel($rootScope.yztimer);
+    function action(){
+        initEncrypt('http://60.205.163.65:8080/user/stake/configer/info',null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/stake/configer/info',
+            method : 'get',
+            dataType : 'json',
+        }).then(function(res){
+            ////console.log(res.data,'res');
+            var resData = res.data;
+
+            var json = resData.data;
+            $scope.racingNum = json.racingNum;
+            $scope.stopTime= $filter('toMinSec')(json.endStakeTime);
+            $scope.startTime = $filter('toMinSec')(json.startRacingTime);
+            $scope.todayIncome = json.todayIncome;
+            $scope.preResult = json.preResult;
+            $scope.stage = json.stage;
+            $scope.nowStatus = json.stageName;
+            $scope.preRacingNum = json.preRacingNum;
+
+            // if(resData.result==='验签失败'){
+            //     $state.go('login');
+            //     return;
+            // }
+
+            if(resData.result==='ERROR'){
+                //console.log('暂无比赛结果');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = true;
+                $scope.toastMessage = '暂无比赛结果';
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                return;
+            }
+            if(resData.result==='SUCCESS' && resData.data.stage == 4){ // 不可押注
+                //console.log('不可押注');
+
+                $scope.modifyNotice = '';
+                $scope.tableDisabled = true;
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+
+                return;
+            }
+
+            // if(resData.result==='SUCCESS' && resData.data.stage == 2){ //计算最优结果
+            //     //console.log('计算最优结果中..');
+            //
+            //     $scope.modifyNotice = '';
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = true;
+            //     $scope.modifying = false;
+            //     return;
+            // }
+
+            // if(resData.result==='SUCCESS' && resData.data.stage == 3){ //改比赛结果
+            //     //console.log('修改比赛结果');
+            //
+            //     $scope.tableDisabled = true;
+            //     $scope.toast = false;
+            //     $scope.mask = true;
+            //     $scope.computering = false;
+            //     $scope.modifying = true;
+            //     if(modifyflag){
+            //         $scope.arrResult = resData.data.result;
+            //         modifyflag = false;
+            //     }
+            //
+            //     $scope.modifyNotice = '';
+            //     return;
+            //
+            // }
+
+
+            if(resData.result==='SUCCESS' && resData.data.stage == 1){          //押注阶段
+                //console.log('押注时间');
+
+                $scope.toast = false;
+                $scope.mask = false;
+                $scope.computering = false;
+                $scope.modifying = false;
+                $scope.tableDisabled = false;
+            }
+
+        },function(err){
+            //console.log(err);
+        });
+        $rootScope.yztimer = $timeout(action,1000);
+    }
+    $rootScope.yztimer = $timeout(action,1000);
+
+
+
+    //修改比赛结果
+    // $scope.modifyReslut = function(){
+    //     //console.log($scope.arrResult,'drag end');
+    //
+    //     $http({
+    //         url : modifyUrl,
+    //         method : 'put',
+    //         dataType : 'json',
+    //         data : {'racingNum':$scope.racingNum,racingResult:$scope.arrResult}
+    //     }).then(function(res){
+    //         //console.log(res,'modifyReslut');
+    //     },function(err){
+    //         //console.log(err);
+    //         $scope.modifyNotice = '请求失败请重试';
+    //     });
+    // };
+
+
+}]);
+
+//机器人管理
+myApp.controller('robotCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('robotStatusCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "机器人状态管理";
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    initEncrypt('http://60.205.163.65:8080/user',null);
+    $http({
+        url : 'http://60.205.163.65:8080/user',
+        method : 'get',
+    }).then(function(res){
+        //console.log(res,'robot');
+        var data = res.data;
+        if(data.result=='ERROR'){
+            alert(data.message);
+        }
+        if(data.result=='SUCCESS'){
+            $scope.hasRobot = data.data.isHaveClient;
+            $scope.hasExpired = data.data.isClientExpired;
+        }
+    },function(){
+        alert('请求失败，请重试或缺失必要内容');
+    });
+
+
+    //是否报盘
+    $scope.report = '1';
+
+    $scope.offer = function(){
+        //console.log($scope.report,'是否报盘');
+        initEncrypt('http://60.205.163.65:8080/user/robot/enable',{
+            clientIsEnable : $scope.report == '1'?true:false
+        });
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/enable',
+            method : 'put',
+            data : {
+                clientIsEnable : $scope.report == '1'?true:false
+            }
+        }).then(function(res){
+            //console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('操作成功');
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    };
+
+}]).controller('robotOddsCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "机器人赔率管理";
+
+    $scope.queryKey = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/robot/rate',null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/rate',
+            method : 'get',
+        }).then(function(res){
+            //console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                $scope.tableData = data.data;
+                //console.log($scope.tableData,'dssfsdfsdfs');
+                //分页
+                $scope.currentPage = data.page;
+                //$scope.pageSize = data.pageSize;
+                $scope.total = data.totalPage;
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    initData();
+
+
+    $scope.mofiy = function(title,key){
+        $scope.odds = '';
+        $scope.modalTitle = title;
+        $scope.queryKey = key;
+    };
+    $scope.confirm = function(){
+        //console.log($scope.odds,$scope.queryKey);
+
+        if($scope.odds === '' || $scope.odds === undefined){
+            alert('赔率不为空');
+            return;
+        }
+        $scope.tableData[$scope.queryKey] = $scope.odds;
+        initEncrypt('http://60.205.163.65:8080/user/robot/rate',$scope.tableData);
+        $http({
+            url : 'http://60.205.163.65:8080/user/robot/rate',
+            method : 'put',
+            data : $scope.tableData
+        }).then(function(res){
+            //console.log(res);
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            if(data.result=='SUCCESS'){
+                alert('修改成功');
+                //$scope.tableData[$scope.queryKey] = $scope.odds;
+                initData();
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
+    };
+
+}]);
+//玩家管理
+myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('playerlistCtrl',['$scope','$http','$timeout','encrypt','localStorageService',function($scope,$http,$timeout,encrypt,localStorageService){
+    $scope.text = "玩家列表管理";
+    //控制搜索
+    var timer = null;
+    $scope.nicklist = false;
+
+
+    $scope.queryNickName = '';
+    $scope.queryPage = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+
+
+
+    $scope.nickSearch = function(event){
+        $timeout.cancel(timer);
+        timer = $timeout(function(){
+            //console.log($scope.nickname);
+            initEncrypt('http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,null);
+            $http({
+                url : 'http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,
+                method : 'get'
+            }).then(function(res){
+                var resData = res.data;
+                // //console.log(res);
+                // if(data.result == 'SUCCESS'){
+                //     $scope.nicklist = true;
+                //     $scope.listItems = data.data;
+                // }
+
+                if(resData.result=='ERROR'){
+                    alert(resData.message);
+                    return;
+                }
+
+                if(resData.result =='SUCCESS'){
+                    $scope.nicklist = true;
+                    $scope.listItems = resData.data;
+                }
+
+            });
+
+        },300);
+    };
+    $scope.listClick = function(str){
+        //console.log(str,'click');
+        $scope.nicklist = false;
+        $scope.nickname = str;
+        $scope.queryNickName = str;
+    };
+
+    $scope.blur = function(){
+        $timeout(function(){
+            $scope.nicklist = false;
+        },300);
+    };
+
+
+
+    function initData(){
+        $http({
+           url : 'http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var data = res.data;
+
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+    initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+    initData();
+
+
+    $scope.search = function(){
+        //console.log('search');
+        $scope.queryNickName = $scope.nickname;
+        initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+        initData();
+    };
+
+    //分页
+    $scope.goPage = function(page){
+        //console.log(page);
+        $scope.queryPage = page;
+        initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+        initData();
+    };
+
+}]).controller('playerportCtrl',['$scope','$timeout','$http','encrypt','localStorageService',function($scope,$timeout,$http,encrypt,localStorageService){
+    $scope.text = "玩家报表管理";
+    //控制搜索
+    var timer = null;
+    $scope.nicklist = false;
+
+
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryNickName = '';
+    $scope.queryIssue = '';
+    $scope.queryPage = '';
+
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    $scope.selectActive = 'byDate';
+
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/members/income/day?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/members/income/day?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/members/income/racing?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/members/income/racing?nickName='+$scope.queryNickName+'&startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    //byDate();
+
+
+    $scope.nickSearch = function(event){
+        $timeout.cancel(timer);
+        timer = $timeout(function(){
+            //console.log($scope.nickname);
+            initEncrypt('http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,null);
+            $http({
+                url : 'http://60.205.163.65:8080/user/members/nicname?nicName='+$scope.nickname,
+                method : 'get'
+            }).then(function(res){
+                var resData = res.data;
+                // //console.log(res);
+                // if(data.result == 'SUCCESS'){
+                //     $scope.nicklist = true;
+                //     $scope.listItems = data.data;
+                // }
+
+                if(resData.result=='ERROR'){
+                    alert(resData.message);
+                    return;
+                }
+
+                if(resData.result =='SUCCESS'){
+                    $scope.nicklist = true;
+                    $scope.listItems = resData.data;
+                }
+
+            });
+
+        },300);
+    };
+    $scope.listClick = function(str){
+        //console.log(str,'click');
+        $scope.nicklist = false;
+        $scope.nickname = str;
+        $scope.queryNickName = str;
+    };
+
+    $scope.blur = function(){
+        $timeout(function(){
+            $scope.nicklist = false;
+        },300);
+    };
+
+    $scope.searchByDate = function() {
+        //console.log('search by date');
+        //console.log($scope.startTime,$scope.endTime);
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
+        byDate();
+    };
+
+    $scope.searchByIssue = function() {
+        //console.log('search by issue');
+        //console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
+        $scope.queryIssue = $scope.issue;
+        byIssue();
+    };
+
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        //console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
+    };
+    // 按日期 与 按 期号 切换
+    $scope.reRender = function(item){
+        if(item == 'date'){ //按日期
+            $scope.selectActive = 'byDate';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
+        }
+        if(item == 'issue'){ //按期号
+            $scope.selectActive = 'byIssue';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
+        }
+    };
+
+}]).controller('playerDetailCtrl',['$scope','$stateParams','$http','localStorageService','encrypt',function($scope,$stateParams,$http,localStorageService,encrypt){
+    ////console.log($stateParams);
+    $scope.queryMemberId = $stateParams.memberId;
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryType = '';
+    $scope.queryPage = '';
+
+    $scope.type = 'ADD';
+
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/members/'+$scope.queryMemberId+'?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&type='+$scope.queryType+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/members/'+$scope.queryMemberId+'?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&type='+$scope.queryType+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var data = res.data;
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+    initData();
+
+    $scope.search = function(){
+        //console.log($scope.startTime,$scope.endTime,$scope.type);
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
+        $scope.queryType = $scope.type;
+        initData();
+    };
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        initData();
+    };
+
+}]);
+
+
+//积分管理
+myApp.controller('integralCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('applyCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "申请积分";
+
+    $scope.status = '';
+    $scope.cancelId = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    function getInfo(){
+        initEncrypt('http://60.205.163.65:8080/user/point',null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/point',
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var resData = res.data;
+           if(resData.result=='ERROR'){
+               alert(resData.message);
+               return;
+           }
+           $scope.totalPoints = resData.data.totalPoints;
+           $scope.surplusPoints = resData.data.userPoints;
+           $scope.playerPoints = resData.data.membersPoints;
+
+           initData();
+       },function(){
+           alert('请求失败，请重试或缺失必要内容');
+       });
+    }
+    getInfo();
+
+
+    $scope.queryStatus = '';
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/points?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&status='+$scope.queryStatus+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/points?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&status='+$scope.queryStatus+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var data = res.data;
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+
+
+    //select
+    $scope.selectOptions =[{key:'UNTREATED',value:'申请中'},{key:'AUDIT',value:'已批准'},{key:'REJECT',value:'已拒绝'},{key:'CANCEL',value:'已取消'}];
+    $scope.selection = $scope.selectOptions[0];
+    $scope.selectChange = function(){
+        //console.log($scope.selection.key);
+        $scope.queryStatus = $scope.selection.key;
+        // $scope.queryPage = 1;
+        // initData();
+    };
+
+    $scope.toModal = function(status,id){
+        if(status == 'add'){
+            $scope.title = '新增申请';
+            $scope.moneyShow = true;
+            $scope.status = status;
+            $scope.money = '';
+            $scope.applyText = '';
+        }
+        if(status == 'cancel'){
+            $scope.title = '取消申请';
+            $scope.moneyShow = false;
+            $scope.status = status;
+            $scope.cancelId = id;
+            $scope.applyText = '';
+        }
+    };
+
+    //新增 确认
+    $scope.confirm = function() {
+        if($scope.status == 'add'){
+            initEncrypt('http://60.205.163.65:8080/user/points',{
+                appComment : $scope.applyText,
+                appPoints : $scope.money
+            });
+            $http({
+               url : 'http://60.205.163.65:8080/user/points',
+               method : 'post',
+               data : {
+                   appComment : $scope.applyText,
+                   appPoints : $scope.money
+               }
+            }).then(function(res){
+               //console.log(res);
+               var data = res.data;
+               if(data.result=='ERROR'){
+                   alert(data.message);
+               }
+               if(data.result=='SUCCESS'){
+                   alert('操作成功');
+                   initData();
+               }
+
+            }, function(err){
+               alert('请求失败，请重试或缺失必要内容');
+            });
+        }
+
+        if($scope.status == 'cancel'){
+            initEncrypt('http://60.205.163.65:8080/user/points/'+$scope.cancelId+'/status/cancel',{
+                comments : $scope.applyText
+            });
+            $http({
+               url : 'http://60.205.163.65:8080/user/points/'+$scope.cancelId+'/status/cancel',
+               method : 'put',
+               data : {
+                   comments : $scope.applyText
+               }
+
+            }).then(function(res){
+               //console.log(res);
+               var data = res.data;
+               if(data.result=='ERROR'){
+                   alert(data.message);
+               }
+               if(data.result=='SUCCESS'){
+                   alert('操作成功');
+                   initData();
+               }
+
+            }, function(err){
+               alert('请求失败，请重试或缺失必要内容');
+            });
+        }
+
+    };
+
+
+    $scope.search = function(){
+        //console.log($scope.selection);
+        $scope.queryStatus = $scope.queryStatus;
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
+        $scope.queryPage = 1;
+        initData();
+    };
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        initData();
+    };
+
+}]).controller('listCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "操作记录";
+    // $scope.info = '当前总积分 == 当前结余积分 === 玩家总积分';
+
+    function getInfo(){
+        initEncrypt('http://60.205.163.65:8080/user/point',null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/point',
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var resData = res.data;
+           if(resData.result=='ERROR'){
+               alert(resData.message);
+               return;
+           }
+           $scope.totalPoints = resData.data.totalPoints;
+           $scope.surplusPoints = resData.data.userPoints;
+           $scope.playerPoints = resData.data.membersPoints;
+
+           initData();
+       },function(){
+           alert('请求失败，请重试或缺失必要内容');
+       });
+    }
+    getInfo();
+
+
+
+    //默认选择
+    $scope.status = 'MANAGER_ADD';
+
+    $scope.queryStatus = 'MANAGER_ADD';
+    $scope.queryPage = 1;
+
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+    function initData(){
+        initEncrypt('http://60.205.163.65:8080/user/state?status='+$scope.queryStatus+'&page='+$scope.queryPage,null);
+        $http({
+           url : 'http://60.205.163.65:8080/user/state?status='+$scope.queryStatus+'&page='+$scope.queryPage,
+           method : 'get',
+        }).then(function(res){
+           //console.log(res);
+           var data = res.data;
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
+           $scope.tableData = data.data;
+           //分页
+           $scope.currentPage = data.page;
+           //$scope.pageSize = data.pageSize;
+           $scope.total = data.totalPage;
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        initData();
+    };
+
+    //change
+    $scope.change = function(){
+        //console.log($scope.status);
+        $scope.queryStatus = $scope.status;
+        initData();
+    };
+
+    // $scope.tableData = [
+    //     {'code':1,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+    //     {'code':2,'content':'aa','time':'2016-04-06','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+    // ];
+
+}]);
+
+
+//查看积分详情
+// myApp.controller('integralDetailCtrl',['$scope','$stateParams','$sanitize',function($scope,$stateParams,$sanitize){
+//     ////console.log($stateParams);
+//
+//     $scope.title = $stateParams.item1+'==='+ $stateParams.item2;
+//
+//     $scope.tableData = [
+//         {'code':1,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]},
+//         {'code':2,'content':'aa','bb':[1,2],'cc':[3,4],'dd':[5,6]}
+//     ];
+//
+//     //分页
+//     $scope.currentPage = 30;
+//     //$scope.pageSize = 5;  //每页显示多少
+//     $scope.total = 100;
+//     $scope.goPage = function(page){
+//         //console.log(page);
+//     };
+// }]);
+
+
+//盈亏报表
+myApp.controller('profitCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('otherPlCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "分盘盈亏报表";
+    $scope.selectActive = 'byDate';
+
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+    $scope.queryIssue = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/income/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/income/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.queryIssue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    byDate();
+
+
+    $scope.searchByDate = function() {
+        //console.log('search by date');
+        //console.log($scope.startTime,$scope.endTime);
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
+        byDate();
+    };
+
+    $scope.searchByIssue = function() {
+        //console.log('search by issue');
+        //console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
+        $scope.queryIssue = $scope.issue;
+        byIssue();
+    };
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        //console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
+    };
+
+    // 按日期 与 按 期号 切换
+    $scope.reRender = function(item){
+        if(item == 'date'){ //按日期
+            $scope.selectActive = 'byDate';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
+        }
+        if(item == 'issue'){ //按期号
+            $scope.selectActive = 'byIssue';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
+        }
+    };
+}]);
+
+
+//押注报表
+myApp.controller('betCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('otherBetCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "分盘押注报表";
+    $scope.selectActive = 'byDate';
+
+
+    $scope.queryStartDate = '';
+    $scope.queryEndDate = '';
+    $scope.queryPage = '';
+    $scope.issue = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+
+    function byDate(){
+        initEncrypt('http://60.205.163.65:8080/user/bat/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/bat/day?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+    function byIssue(){
+        initEncrypt('http://60.205.163.65:8080/user/bat/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.issue+'&page='+$scope.queryPage,null);
+        $http({
+            url : 'http://60.205.163.65:8080/user/bat/racing?startDate='+$scope.queryStartDate+'&endDate='+$scope.queryEndDate+'&racingNum='+$scope.issue+'&page='+$scope.queryPage,
+            method : 'get'
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+                return;
+            }
+            $scope.tableData = data.data;
+
+            $scope.currentPage = data.page;
+            //$scope.pageSize = data.pageSize;  //每页显示多少
+            $scope.total = data.totalPage;
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    }
+
+    byDate();
+
+    // 表格数据格式
+    // $scope.tableData = [
+    //     {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]},
+    //     {'code':1,'aa':'aa','bb':[1,2,3],'cc':[1,2,3],'dd':[1,2,3],'ee':[1,2,3]}
+    // ];
+
+    // $scope.startTime = '2016-06-12';
+    // $scope.endTime = '2016-08-12';
+    // $scope.issue = '1232454';
+    $scope.searchByDate = function() {
+        //console.log('search by date');
+        //console.log($scope.startTime,$scope.endTime);
+        if(!$scope.startTime || !$scope.endTime){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTime+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTime+' 23:59:59').getTime();
+        }
+        byDate();
+    };
+
+    $scope.searchByIssue = function() {
+        //console.log('search by issue');
+        //console.log($scope.startTimeIssue,$scope.endTimeIssue,$scope.issue);
+        if(!$scope.startTimeIssue || !$scope.endTimeIssue){
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+        }else{
+            $scope.queryStartDate = new Date($scope.startTimeIssue+' 00:00:00').getTime();
+            $scope.queryEndDate = new Date($scope.endTimeIssue+' 23:59:59').getTime();
+        }
+
+        byIssue();
+    };
+
+    //分页
+    $scope.goPage = function(page){
+        $scope.queryPage = page;
+        //console.log(page);
+        if($scope.selectActive == 'byDate'){
+            byDate();
+        }else{
+            byIssue();
+        }
+    };
+
+    // 按日期 与 按 期号 切换
+    $scope.reRender = function(item){
+        if(item == 'date'){ //按日期
+            $scope.selectActive = 'byDate';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTime = '';
+            $scope.endTime = '';
+            $scope.queryPage = 1;
+            byDate();
+        }
+        if(item == 'issue'){ //按期号
+            $scope.selectActive = 'byIssue';
+            $scope.queryStartDate = '';
+            $scope.queryEndDate = '';
+            $scope.queryIssue = '';
+            $scope.startTimeIssue = '';
+            $scope.endTimeIssue = '';
+            $scope.issue = '';
+            $scope.queryPage = 1;
+            byIssue();
+        }
+    };
+
+}]).controller('betDetailCtrl',['$scope','$stateParams','$http','encrypt','localStorageService',function($scope,$stateParams,$http,encrypt,localStorageService){
+
+    //console.log($stateParams.type);
+    $scope.type = $stateParams.type;
+    $scope.dateIssue = $stateParams.category;
+
+
+
+        function initEncrypt(url,bodyQuery){
+            ////console.log(url,'url');
+            var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+            localStorageService.set('Authorization',authoriza);
+            localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+            ////console.log(authoriza,'set');
+        }
+
+        function maketableDate(json){
+            //1-10 表格数据
+            $scope.table1 = [
+                //1
+                [
+                    {key:'大',value:1.988,money:json.rankingStakeList[0].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[1].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[2].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[3].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[4].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[5].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[6].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[7].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[8].big},
+                    {key:'大',value:1.988,money:json.rankingStakeList[9].big}
+                ],
+                //2
+                [
+                    {key:'小',value:1.988,money:json.rankingStakeList[0].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[1].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[2].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[3].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[4].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[5].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[6].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[7].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[8].small},
+                    {key:'小',value:1.988,money:json.rankingStakeList[9].small}
+                ],
+                //3
+                [
+                    {key:'单',value:1.988,money:json.rankingStakeList[0].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[1].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[2].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[3].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[4].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[5].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[6].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[7].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[8].odd},
+                    {key:'单',value:1.988,money:json.rankingStakeList[9].odd}
+                ],
+                //4
+                [
+                    {key:'双',value:1.988,money:json.rankingStakeList[0].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[1].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[2].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[3].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[4].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[5].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[6].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[7].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[8].even},
+                    {key:'双',value:1.988,money:json.rankingStakeList[9].even}
+                ],
+                //5
+                [
+                    {key:'龙',value:1.988,money:json.commonStake.firstUp},
+                    {key:'龙',value:1.988,money:json.commonStake.secondUp},
+                    {key:'龙',value:1.988,money:json.commonStake.thirdUp},
+                    {key:'龙',value:1.988,money:json.commonStake.fourthUp},
+                    {key:'龙',value:1.988,money:json.commonStake.fifthUp},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''}
+                ],
+                //6
+                [
+                    {key:'虎',value:1.988,money:json.commonStake.firstDowm},
+                    {key:'虎',value:1.988,money:json.commonStake.secondDowm},
+                    {key:'虎',value:1.988,money:json.commonStake.thirdDowm},
+                    {key:'虎',value:1.988,money:json.commonStake.fourthDowm},
+                    {key:'虎',value:1.988,money:json.commonStake.fifthDowm},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''},
+                    {key:'',value:'',money:''}
+                ],
+                //7
+                [
+                    {key:1,value:9.94,money:json.appointStakeList[0].first},
+                    {key:1,value:9.94,money:json.appointStakeList[0].second},
+                    {key:1,value:9.94,money:json.appointStakeList[0].third},
+                    {key:1,value:9.94,money:json.appointStakeList[0].fourth},
+                    {key:1,value:9.94,money:json.appointStakeList[0].fifth},
+                    {key:1,value:9.94,money:json.appointStakeList[0].sixth},
+                    {key:1,value:9.94,money:json.appointStakeList[0].seventh},
+                    {key:1,value:9.94,money:json.appointStakeList[0].eighth},
+                    {key:1,value:9.94,money:json.appointStakeList[0].ninth},
+                    {key:1,value:9.94,money:json.appointStakeList[0].tenth}
+                ],
+                //8
+                [
+                    {key:2,value:9.94,money:json.appointStakeList[1].first},
+                    {key:2,value:9.94,money:json.appointStakeList[1].second},
+                    {key:2,value:9.94,money:json.appointStakeList[1].third},
+                    {key:2,value:9.94,money:json.appointStakeList[1].fourth},
+                    {key:2,value:9.94,money:json.appointStakeList[1].fifth},
+                    {key:2,value:9.94,money:json.appointStakeList[1].sixth},
+                    {key:2,value:9.94,money:json.appointStakeList[1].seventh},
+                    {key:2,value:9.94,money:json.appointStakeList[1].eighth},
+                    {key:2,value:9.94,money:json.appointStakeList[1].ninth},
+                    {key:2,value:9.94,money:json.appointStakeList[1].tenth}
+                ],
+                //9
+                [
+                    {key:3,value:9.94,money:json.appointStakeList[2].first},
+                    {key:3,value:9.94,money:json.appointStakeList[2].second},
+                    {key:3,value:9.94,money:json.appointStakeList[2].third},
+                    {key:3,value:9.94,money:json.appointStakeList[2].fourth},
+                    {key:3,value:9.94,money:json.appointStakeList[2].fifth},
+                    {key:3,value:9.94,money:json.appointStakeList[2].sixth},
+                    {key:3,value:9.94,money:json.appointStakeList[2].seventh},
+                    {key:3,value:9.94,money:json.appointStakeList[2].eighth},
+                    {key:3,value:9.94,money:json.appointStakeList[2].ninth},
+                    {key:3,value:9.94,money:json.appointStakeList[2].tenth}
+                ],
+                //10
+                [
+                    {key:4,value:9.94,money:json.appointStakeList[3].first},
+                    {key:4,value:9.94,money:json.appointStakeList[3].second},
+                    {key:4,value:9.94,money:json.appointStakeList[3].third},
+                    {key:4,value:9.94,money:json.appointStakeList[3].fourth},
+                    {key:4,value:9.94,money:json.appointStakeList[3].fifth},
+                    {key:4,value:9.94,money:json.appointStakeList[3].sixth},
+                    {key:4,value:9.94,money:json.appointStakeList[3].seventh},
+                    {key:4,value:9.94,money:json.appointStakeList[3].eighth},
+                    {key:4,value:9.94,money:json.appointStakeList[3].ninth},
+                    {key:4,value:9.94,money:json.appointStakeList[3].tenth}
+                ],
+                //11
+                [
+                    {key:5,value:9.94,money:json.appointStakeList[4].first},
+                    {key:5,value:9.94,money:json.appointStakeList[4].second},
+                    {key:5,value:9.94,money:json.appointStakeList[4].third},
+                    {key:5,value:9.94,money:json.appointStakeList[4].fourth},
+                    {key:5,value:9.94,money:json.appointStakeList[4].fifth},
+                    {key:5,value:9.94,money:json.appointStakeList[4].sixth},
+                    {key:5,value:9.94,money:json.appointStakeList[4].seventh},
+                    {key:5,value:9.94,money:json.appointStakeList[4].eighth},
+                    {key:5,value:9.94,money:json.appointStakeList[4].ninth},
+                    {key:5,value:9.94,money:json.appointStakeList[4].tenth}
+                ],
+                //12
+                [
+                    {key:6,value:9.94,money:json.appointStakeList[5].first},
+                    {key:6,value:9.94,money:json.appointStakeList[5].second},
+                    {key:6,value:9.94,money:json.appointStakeList[5].third},
+                    {key:6,value:9.94,money:json.appointStakeList[5].fourth},
+                    {key:6,value:9.94,money:json.appointStakeList[5].fifth},
+                    {key:6,value:9.94,money:json.appointStakeList[5].sixth},
+                    {key:6,value:9.94,money:json.appointStakeList[5].seventh},
+                    {key:6,value:9.94,money:json.appointStakeList[5].eighth},
+                    {key:6,value:9.94,money:json.appointStakeList[5].ninth},
+                    {key:6,value:9.94,money:json.appointStakeList[5].tenth}
+                ],
+                //13
+                [
+                    {key:7,value:9.94,money:json.appointStakeList[6].first},
+                    {key:7,value:9.94,money:json.appointStakeList[6].second},
+                    {key:7,value:9.94,money:json.appointStakeList[6].third},
+                    {key:7,value:9.94,money:json.appointStakeList[6].fourth},
+                    {key:7,value:9.94,money:json.appointStakeList[6].fifth},
+                    {key:7,value:9.94,money:json.appointStakeList[6].sixth},
+                    {key:7,value:9.94,money:json.appointStakeList[6].seventh},
+                    {key:7,value:9.94,money:json.appointStakeList[6].eighth},
+                    {key:7,value:9.94,money:json.appointStakeList[6].ninth},
+                    {key:7,value:9.94,money:json.appointStakeList[6].tenth}
+                ],
+                //14
+                [
+                    {key:8,value:9.94,money:json.appointStakeList[7].first},
+                    {key:8,value:9.94,money:json.appointStakeList[7].second},
+                    {key:8,value:9.94,money:json.appointStakeList[7].third},
+                    {key:8,value:9.94,money:json.appointStakeList[7].fourth},
+                    {key:8,value:9.94,money:json.appointStakeList[7].fifth},
+                    {key:8,value:9.94,money:json.appointStakeList[7].sixth},
+                    {key:8,value:9.94,money:json.appointStakeList[7].seventh},
+                    {key:8,value:9.94,money:json.appointStakeList[7].eighth},
+                    {key:8,value:9.94,money:json.appointStakeList[7].ninth},
+                    {key:8,value:9.94,money:json.appointStakeList[7].tenth}
+                ],
+                //15
+                [
+                    {key:9,value:9.94,money:json.appointStakeList[8].first},
+                    {key:9,value:9.94,money:json.appointStakeList[8].second},
+                    {key:9,value:9.94,money:json.appointStakeList[8].third},
+                    {key:9,value:9.94,money:json.appointStakeList[8].fourth},
+                    {key:9,value:9.94,money:json.appointStakeList[8].fifth},
+                    {key:9,value:9.94,money:json.appointStakeList[8].sixth},
+                    {key:9,value:9.94,money:json.appointStakeList[8].seventh},
+                    {key:9,value:9.94,money:json.appointStakeList[8].eighth},
+                    {key:9,value:9.94,money:json.appointStakeList[8].ninth},
+                    {key:9,value:9.94,money:json.appointStakeList[8].tenth}
+                ],
+                //16
+                [
+                    {key:10,value:9.94,money:json.appointStakeList[9].first},
+                    {key:10,value:9.94,money:json.appointStakeList[9].second},
+                    {key:10,value:9.94,money:json.appointStakeList[9].third},
+                    {key:10,value:9.94,money:json.appointStakeList[9].fourth},
+                    {key:10,value:9.94,money:json.appointStakeList[9].fifth},
+                    {key:10,value:9.94,money:json.appointStakeList[9].sixth},
+                    {key:10,value:9.94,money:json.appointStakeList[9].seventh},
+                    {key:10,value:9.94,money:json.appointStakeList[9].eighth},
+                    {key:10,value:9.94,money:json.appointStakeList[9].ninth},
+                    {key:10,value:9.94,money:json.appointStakeList[9].tenth}
+                ],
+            ];
+            //冠亚组 表格数据
+            $scope.table2 = [
+                [{'key':'3','value':'41','money':json.commonStake.firstSecond3},{'key':'4','value':'41','money':json.commonStake.firstSecond4},{'key':'5','value':'21','money':json.commonStake.firstSecond5},{'key':'6','value':'21','money':json.commonStake.firstSecond6}],
+                [{'key':'7','value':'12','money':json.commonStake.firstSecond7},{'key':'8','value':'12','money':json.commonStake.firstSecond8},{'key':'9','value':'10.3','money':json.commonStake.firstSecond9},{'key':'10','value':'10.3','money':json.commonStake.firstSecond10}],
+                [{'key':'11','value':'8.3','money':json.commonStake.firstSecond11},{'key':'12','value':'10.3','money':json.commonStake.firstSecond12},{'key':'13','value':'10.3','money':json.commonStake.firstSecond13},{'key':'14','value':'12','money':json.commonStake.firstSecond14}],
+                [{'key':'15','value':'12','money':json.commonStake.firstSecond15},{'key':'16','value':'21','money':json.commonStake.firstSecond16},{'key':'17','value':'21','money':json.commonStake.firstSecond17},{'key':'18','value':'41','money':json.commonStake.firstSecond18}],
+                [{'key':'19','value':'12','money':json.commonStake.firstSecond19},{'key':'','value':''},{'key':'','value':''},{'key':'','value':''}],
+                [{'key':'冠亚大','value':'2','money':json.commonStake.firstSecondBig},{'key':'冠亚小','value':'1.63','money':json.commonStake.firstSecondSmall},{'key':'冠亚单','value':'1.63','money':json.commonStake.firstSecondOdd},{'key':'冠亚双','value':'2','money':json.commonStake.firstSecondOdd}]
+            ];
+        }
+
+
+        var url = '';
+        if($scope.type == 'byDate'){
+            url = 'http://60.205.163.65:8080/user/stake/day/info?day='+$scope.dateIssue;
+        }
+        if($scope.type == 'byIssue'){
+            url = 'http://60.205.163.65:8080/user/stake/racingnum/info?racingNum='+$scope.dateIssue;
+        }
+
+        initEncrypt(url,null);
+        $http({
+            url :  url,
+            method : 'get'
+        }).then(function(res){
+            // //console.log(res,'详情结果');
+
+            var resData = res.data;
+            if(resData.result == 'NO_LOGIN'){
+                $state.go('login');
+                return;
+            }
+            if(resData.result=='ERROR'){
+                alert(resData.message);
+                return;
+            }
+
+            if($scope.type == 'byIssue'){
+                $scope.lotteryRestut = resData.data.result ? resData.data.result.join(''):'';
+            }
+            $scope.money = resData.data.stakeAmount;
+            $scope.number = resData.data.stakeCount;
+            $scope.fitloss = resData.data.stakeAmount;
+            $scope.allfitloss = resData.data.deficitAmount;
+            $scope.income = resData.data.incomeAmount;
+            maketableDate(resData.data.stakeVo);
+
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+
+
+
+
+}]);
+
+
+//用户管理
+myApp.controller('userCtrl',['$scope','$location',function($scope,$location){
+    //页面一进来控制 class active
+    $scope.selectClass = $location.path().substr(1);
+}]).controller('allUserCtrl',['$scope','$http','encrypt','localStorageService',function($scope,$http,encrypt,localStorageService){
+    $scope.text = "查看修改个人信息";
+
+    $scope.nickname = '';
+    $scope.password = '';
+
+    function initEncrypt(url,bodyQuery){
+        ////console.log(url,'url');
+        var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
+        localStorageService.set('Authorization',authoriza);
+        localStorageService.set('Accesskey',localStorageService.get('Accesskey'));
+        ////console.log(authoriza,'set');
+    }
+
+    $scope.modify = function(){
+        //console.log($scope.nickname,$scope.password);
+        initEncrypt('http://60.205.163.65:8080/user/',{
+            nickName : $scope.nickname,
+            password : $scope.password
+        });
+        $http({
+            url : 'http://60.205.163.65:8080/user/',
+            method : 'put',
+            data : {
+                nickName : $scope.nickname,
+                password : $scope.password
+            }
+        }).then(function(res){
+            var data = res.data;
+            if(data.result=='ERROR'){
+                alert(data.message);
+            }
+            if(data.result=='SUCCESS'){
+                alert('操作成功');
+            }
+        },function(){
+            alert('请求失败，请重试或缺失必要内容');
+        });
+    };
+
+}]);
+
+//重置 selected 的 td
+myApp.directive('clearTd',function(){
+    return {
+        restrict : 'A',
+        link : function(scope,elem){
+            $(elem).on('click',function(){
+                $('.table-box td').removeClass('selected');
+            });
+        }
+    };
+});
+
+
+//押注  td
+myApp.directive('myTd',function(){
+    return {
+        restrict : 'A',
+        scope : {
+            flag : '@', // 1-10 or 冠亚和 渲染
+            row : '=',
+            selectedObj : '=',
+            code : '@',
+            value :'@'
+        },
+        template : '<div class="item-td">'+
+                            '<p class="item-code">{{ flag=="true" ? row.codeName : value }}</p>'+
+                            '<p class="item-value">{{ flag=="true" ? row.codeValue : row.codeValue[code]}}</p>'+
+                   '</div>',
+        link : function(scope,elem,attr){
+
+            $(elem).on('click',function(){
+                var key = attr.key, //字段key
+                    rank = attr.rank, //名称
+                    code = scope.code, // 冠亚 key
+                    tab = attr.tab, // 1-5 or 6-10 or 冠亚
+                    trid = attr.trid; //行号
+                ////console.log(key,rank,trid,code);
+                if($('.table-box').hasClass('disabled')){
+                    return;
+                }
+                if(code == 'firstSecond20'||code == 'firstSecond21'||code == 'firstSecond22'){ //空td 不操作
+                    return;
+                }
+
+                if(!$(this).hasClass('selected')){
+                    $(this).addClass('selected');
+                    if(scope.flag=='true'){
+                        scope.selectedObj[key+'-'+rank+'-'+trid+'-'+tab] = true;
+                    }else{
+                        scope.selectedObj[key+'-'+code+'-'+tab] = true;
+                    }
+
+                }else{
+                    $(this).removeClass('selected');
+                    if(scope.flag=='true'){
+                        delete scope.selectedObj[key+'-'+rank+'-'+trid+'-'+tab];
+                    }else{
+                        delete scope.selectedObj[key+'-'+code+'-'+tab];
+                    }
+                }
+            });
+        }
+    };
+});
+
+
+
+
+//顶部导航的指令
+myApp.directive('navHeader',function() {
+    return {
+        restrict : 'AE',
+        scope : {
+            nowSelsect : '@selectActive',
+            realtimeSelsect : '@realtimeActive'
+        },
+        templateUrl : './templates/nav/nav.html',
+    };
+});
+
+//历史回退
+myApp.directive('goback',function(){
+    return {
+        restrict : 'A',
+        link : function(scope,elem){
+            $(elem).on('click',function(){
+                window.history.back();
+            });
+        }
+    };
+});
+
+// 切换 class active 指令
+myApp.directive('tabActive',function(){
+    return {
+        restrict : 'A',
+        link : function(scope,elem,attr){
+            $(elem).on('click',function(ev){
+                $(elem).siblings('li').removeClass('active');
+                $(this).addClass('active');
+            });
+        }
+    };
+});
+
+
+//loading
+// myApp.directive('loading',['$http' ,function ($http){
+//     return {
+//         restrict: 'A',
+//         link: function (scope, elm, attrs){
+//             scope.isLoading = function () {
+//                 ////console.log($http,'$http.pendingRequests');
+//                 return $http.pendingRequests.length > 0;
+//             };
+//             scope.$watch(scope.isLoading,function(v){
+//                 if(v){
+//                     elm.show();
+//                 }else{
+//                     elm.hide();
+//                 }
+//             });
+//         }
+//     };
+// }]);
+
+//拼接加密算法
+myApp.factory('encrypt', ['$location', 'sha1', function($location, sha1) {
+    function getUrlInfo(url,bodyQuery) {
+        var arrUrl = url.split("//");
+        var queryObj = {};
+        var start = arrUrl[1].indexOf("/");
+        var relUrl = arrUrl[1].substring(start);
+        //console.log(relUrl,'relUrl');
+        var path = '';
+        if (relUrl.indexOf("?") != -1) {
+            path = relUrl.split("?")[0];
+        }else{
+            path = relUrl;
+        }
+        if (url.indexOf("?") != -1) {
+            var searchStr = '?'+relUrl.split("?")[1];
+            var str = searchStr.substr(1);
+            strs = str.split("&");
+            for(var i = 0; i < strs.length; i ++) {
+                queryObj[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+            }
+        }
+        return {url: url, domain: arrUrl[1].substring(0,start), path: path, searchObj:queryObj,params:bodyQuery};
+    }
+
+    return {
+        getAuthor: function(url, bodyQuery,secretKey) {
+            var urlObj = getUrlInfo(url,bodyQuery);
+            //console.log(urlObj,'urlObj');
+            //return;
+            if(angular.isObject(urlObj.params)){
+                urlObj.searchObj.requestBody = JSON.stringify(urlObj.params);
+            }
+            var keyArr = [];
+            angular.forEach(urlObj.searchObj, function(val, key) {
+                keyArr.push(key);
+            });
+            keyArr.sort();
+            ////console.log(keyArr);
+            var keyStr = '';
+            angular.forEach(keyArr, function(val, index) {
+                keyStr += urlObj.searchObj[val];
+            });
+            //console.log(urlObj.path + keyStr + secretKey,'加密的字串');
+            //console.log(secretKey,'secretKey');
+            return sha1.hash(urlObj.path + keyStr + secretKey).toUpperCase();
+        }
+    };
+}]);
+
+
+//在所有请求中添加 配置
+myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', function($q,$injector, localStorageService) {
+    return {
+        // 请求发出之前，可以用于添加各种身份验证信息
+        request: function(config) {
+            //console.log(config,'config');
+            ///user/members/nicname?nicName=
+            if(config.url.indexOf('/user/members/nicname?nicName=')>0){
+                $('.loading-mask').hide();
+            }else{
+                $('.loading-mask').show();
+            }
+            //对所有的请求添加 验证
+            if (localStorageService.get('Authorization')) {
+                ////console.log(localStorageService.get('Authorization'),'location');
+                config.headers.Authorization = localStorageService.get('Authorization');
+                config.headers.Accesskey = localStorageService.get('Accesskey');
+            }
+            return config;
+        },
+        // 请求发出时出错
+        requestError: function(err) {
+            ////console.log('request config error');
+            $('.loading-mask').hide();
+            return $q.reject(err);
+        },
+        // 成功返回了响应
+        response: function(res) {
+            //console.log(res,'response config success');
+            if(res.data.result === 'NO_LOGIN') {
+                //console.log('登录态丢失');
+                $injector.get('$state').transitionTo('login');
+                //return $q.reject(response);
+            }
+            $('.loading-mask').hide();
+            return res;
+        },
+        // 返回的响应出错，包括后端返回响应时，设置了非 200 的 http 状态码
+        responseError: function(err) {
+            $('.loading-mask').hide();
+            ////console.log('response config error');
+            return $q.reject(err);
+        }
+    };
+}]);
+
+
+//时间格式化
+myApp.filter('toMinSec', function() {
+    return function(time) {
+        if(time<0){
+            return '00:00';
+        }
+        var totalSec = time / 1000;
+        var min = parseInt(totalSec / 60);
+        var sec = parseInt(totalSec % 60);
+        if (min < 10) {
+            min = '0' + min;
+        }
+        if (sec < 10) {
+            sec = '0' + sec;
+        }
+        return min + ':' + sec;
+    };
+});
+
+//过滤数据
+myApp.filter('splitArrFilter',function(){
+    return function(o){
+        if(typeof o == 'object'){
+            var str ='';
+            for(var i=0;i<o.length;i++){
+                if(i===0){
+                    str += o[i];
+                }else{
+                    str += '<span class="paddingTips">|</span>'+o[i];
+                }
+            }
+            return str;
+        }else{
+            return o;
+        }
+    };
+});
+
+
+//组装 押注 要发送的数据
+myApp.factory('makeSendData',function(){
+    return {
+        makeParams : function(sendData,selectData,money){
+            var keyCode = ['big','small','odd','even']; //大小单双
+            var keyCodeUp = ['firstUp','secondUp','thirdUp','fourthUp','fifthUp'];//龙
+            var keyCodeDown = ['firstDowm','secondDowm','thirdDowm','fourthDowm','fifthDowm'];//虎
+            var sortArr = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+
+            money = parseInt(money);
+
+            angular.forEach(selectData,function(value,itemkey){
+                var arr = itemkey.split('-'); // rankingStakeList-7-4  or commonStake-firstSecond12
+                var key = '',carSort='',tr='';
+                if(arr[3] == 'tab1'){ //1-5
+                        key = arr[0];
+                        carSort = arr[1];
+                        tr = arr[2];
+                    switch (parseInt(tr)) {
+                        case 1:  //大小单双
+                        case 2:
+                        case 3:
+                        case 4:
+                            ////console.log('大小单双');
+                            sendData[key][carSort-1][keyCode[tr-1]] = money;
+                            break;
+                        case 5:
+                            ////console.log('龙');
+                            sendData[key][keyCodeUp[carSort-1]] = money;
+                            break;
+                        case 6:
+                            ////console.log('虎');
+                            sendData[key][keyCodeDown[carSort-1]] = money;
+                            break;
+                        default :
+                            ////console.log('1-10名');
+                            sendData[key][tr-7][sortArr[carSort-1]] = money;
+                            break;
+                    }
+                }else if(arr[3]=='tab2'){ // 6-10
+                        key = arr[0];
+                        carSort = arr[1];
+                        tr = arr[2];
+
+                    switch (parseInt(tr)) {
+                        case 1:  //大小单双
+                        case 2:
+                        case 3:
+                        case 4:
+                            ////console.log('大小单双5-10');
+                            sendData[key][carSort-1][keyCode[tr-1]] = money;
+                            break;
+                        default :
+                            ////console.log('1-10名');
+                            sendData[key][tr-5][sortArr[carSort-1]] = money;
+                            break;
+                    }
+                }else{ //冠亚
+                    var keyItem = arr[0];
+                    var keyCodeItem = arr[1];
+                    sendData[keyItem][keyCodeItem] = money;
+                }
+            });
+
+            return sendData;
+        }
+    };
+});
+
+//初始化数据
+myApp.factory('initSendData',function(){
+    return {
+        init : function(dataJson){
+            $.each(dataJson, function(key, obj) {
+                switch (key) {
+                    case 'commonStake':
+                        $.each(obj, function(k, v) {
+                            obj[k] = 0;
+                        });
+                        break;
+                    case 'appointStakeList':
+                    case 'rankingStakeList':
+                        $.each(obj, function(index, val) {
+                            $.each(val,function(k,v){
+                                if(k !== 'carNum' && k !== 'rankingNum'){
+                                    val[k] = 0;
+                                }
+                            });
+                        });
+                        break;
+                    default:
+                        return false;
+                }
+            });
+            return dataJson;
+        }
+    };
+});
+
+//押注时 初始状态的 sendData 数据
+myApp.factory('baseData',function(){
+    return  {
+        'tab1' : [
+            {'codeName':'大','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'小','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'单','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'双','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'龙','codeValue':1.988,'key':'commonStake',className:'bgColor-1'},
+            {'codeName':'虎','codeValue':1.988,'key':'commonStake',className:'bgColor-1'},
+            {'codeName':'1','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'2','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'3','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'4','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'5','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'6','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'7','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'8','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'9','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'10','codeValue':9.94,'key':'appointStakeList'}
+        ],
+        'tab2' : [
+            {'codeName':'大','codeValue':1.988,'key':'rankingStakeList'},
+            {'codeName':'小','codeValue':1.988,'key':'rankingStakeList'},
+            {'codeName':'单','codeValue':1.988,'key':'rankingStakeList'},
+            {'codeName':'双','codeValue':1.988,'key':'rankingStakeList'},
+            {'codeName':'1','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'2','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'3','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'4','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'5','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'6','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'7','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'8','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'9','codeValue':9.94,'key':'appointStakeList'},
+            {'codeName':'10','codeValue':9.94,'key':'appointStakeList'}
+        ],
+        'tab3' : [
+            {
+                'codeName':{
+                    'firstSecond3':3,
+                    'firstSecond4':4,
+                    'firstSecond5':5,
+                    'firstSecond6':6
+                },
+                'codeValue':{
+                    'firstSecond3':41,
+                    'firstSecond4':41,
+                    'firstSecond5':21,
+                    'firstSecond6':21
+                }
+            },
+            {
+                'codeName':{
+                    'firstSecond7':7,
+                    'firstSecond8':8,
+                    'firstSecond9':9,
+                    'firstSecond10':10
+                },
+                'codeValue':{
+                    'firstSecond7':12,
+                    'firstSecond8':12,
+                    'firstSecond9':10.3,
+                    'firstSecond10':10.3
+                }
+            },
+            {
+                'codeName':{
+                    'firstSecond11':11,
+                    'firstSecond12':12,
+                    'firstSecond13':13,
+                    'firstSecond14':14
+                },
+                'codeValue':{
+                    'firstSecond11':8.3,
+                    'firstSecond12':10.3,
+                    'firstSecond13':10.3,
+                    'firstSecond14':12
+                }
+            },
+            {
+                'codeName':{
+                    'firstSecond15':15,
+                    'firstSecond16':16,
+                    'firstSecond17':17,
+                    'firstSecond18':18
+                },
+                'codeValue':{
+                    'firstSecond15':12,
+                    'firstSecond16':21,
+                    'firstSecond17':21,
+                    'firstSecond18':41
+                }
+            },
+            {
+                'codeName':{
+                    'firstSecond19':19,
+                    'firstSecond20':'',
+                    'firstSecond21':'',
+                    'firstSecond22':'',
+                },
+                'codeValue':{
+                    'firstSecond19':41,
+                    'firstSecond20':'',
+                    'firstSecond21':'',
+                    'firstSecond22':'',
+                }
+            },
+            {
+                'codeName':{
+                    'firstSecondBig':'冠亚大',
+                    'firstSecondSmall':'冠亚小',
+                    'firstSecondOdd':'冠亚单',
+                    'firstSecondEven':'冠亚双'
+                },
+                'codeValue':{
+                    'firstSecondBig':2,
+                    'firstSecondSmall':1.63,
+                    'firstSecondOdd':1.63,
+                    'firstSecondEven':2
+                }
+            }
+        ],
+        sendData : {
+            "commonStake": {//普通押注
+                  "firstUp": 0,//第一名龙金额
+                  "firstDowm": 0,//第一名虎金额
+                  "secondUp": 0,//第二名龙金额
+                  "secondDowm": 0,//第二名虎金额
+                  "thirdUp": 0,//第三名龙金额
+                  "thirdDowm": 0,//第三名虎金额
+                  "fourthUp": 0,//第四名龙金额
+                  "fourthDowm": 0,//第四名虎金额
+                  "fifthUp": 0,//第五名龙金额
+                  "fifthDowm": 0,//第五名虎金额
+                  "firstSecondOdd": 0,//冠亚和单金额
+                  "firstSecondEven": 0,//冠亚和双金额
+                  "firstSecondBig": 0,//冠亚和大金额
+                  "firstSecondSmall": 0,//冠亚和小金额
+                  "firstSecond3": 0,//冠亚和结果3金额
+                  "firstSecond4": 0,//冠亚和结果4金额
+                  "firstSecond5": 0,//冠亚和结果5金额
+                  "firstSecond6": 0,//冠亚和结果6金额
+                  "firstSecond7": 0,//冠亚和结果7金额
+                  "firstSecond8": 0,//冠亚和结果8金额
+                  "firstSecond9": 0,//冠亚和结果9金额
+                  "firstSecond10": 0,//冠亚和结果10金额
+                  "firstSecond11": 0,//冠亚和结果11金额
+                  "firstSecond12": 0,//冠亚和结果12金额
+                  "firstSecond13": 0,//冠亚和结果13金额
+                  "firstSecond14": 0,//冠亚和结果14金额
+                  "firstSecond15": 0,//冠亚和结果15金额
+                  "firstSecond16": 0,//冠亚和结果16金额
+                  "firstSecond17": 0,//冠亚和结果17金额
+                  "firstSecond18": 0,//冠亚和结果18金额
+                  "firstSecond19": 0//冠亚和结果19金额
+              },
+              "appointStakeList": [//车辆名次指定押注
+                  {//车号为1的名次押注
+                      "carNum": 1,//车号1，死值
+                      "first": 0,//第一名金额
+                      "second": 0,//第二名金额
+                      "third": 0,//第三名金额
+                      "fourth": 0,//第四名金额
+                      "fifth": 0,//第五名金额
+                      "sixth": 0,//第六名金额
+                      "seventh": 0,//第七名金额
+                      "eighth": 0,//第八名金额
+                      "ninth": 0,//第九名金额
+                      "tenth": 0//第十名金额
+                  },
+                  {//车号为2的名次押注
+                      "carNum": 2,//车号2，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为3的名次押注
+                      "carNum": 3,//车号3，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为4的名次押注
+                      "carNum": 4,//车号4，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为5的名次押注
+                      "carNum": 5,//车号5，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为6的名次押注
+                      "carNum": 6,//车号6，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为7的名次押注
+                      "carNum": 7,//车号7，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为8的名次押注
+                      "carNum": 8,//车号8，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为9的名次押注
+                      "carNum": 9,//车号9，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  },
+                  {//车号为10的名次押注
+                      "carNum": 10,//车号10，死值
+                      "first": 0,
+                      "second": 0,
+                      "third": 0,
+                      "fourth": 0,
+                      "fifth": 0,
+                      "sixth": 0,
+                      "seventh": 0,
+                      "eighth": 0,
+                      "ninth": 0,
+                      "tenth": 0
+                  }
+              ],
+              "rankingStakeList": [//名次情况押注
+                  {//排名第一的具体情况
+                      "rankingNum": 1,//第1名，死值
+                      "big": 0,//大金额
+                      "small": 0,//小金额
+                      "odd": 0,//单金额
+                      "even": 0//双金额
+                  },
+                  {//排名第二的具体情况
+                      "rankingNum": 2,//第2名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第三的具体情况
+                      "rankingNum": 3,//第3名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第四的具体情况
+                     "rankingNum": 4,//第4名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第五的具体情况
+                      "rankingNum": 5,//第5名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第六的具体情况
+                      "rankingNum": 6,//第6名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第七的具体情况
+                      "rankingNum": 7,//第7名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第八的具体情况
+                      "rankingNum": 8,//第8名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第九的具体情况
+                     "rankingNum": 9,//第9名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  },
+                  {//排名第十的具体情况
+                      "rankingNum": 10,//第10名，死值
+                      "big": 0,
+                      "small": 0,
+                      "odd": 0,
+                      "even": 0
+                  }
+              ]
+        }
+    };
+});
