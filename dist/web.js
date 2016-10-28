@@ -2464,7 +2464,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         response: function(res) {
             //console.log(res,'response config success');
             if(res.data.result === 'NO_LOGIN') {
-                //console.log('登录态丢失');
+                localStorageService.clearAll();
                 $injector.get('$state').transitionTo('login');
                 //return $q.reject(response);
             }
@@ -2473,6 +2473,7 @@ myApp.factory('HttpInterceptor', ['$q','$injector', 'localStorageService', funct
         },
         // 返回的响应出错，包括后端返回响应时，设置了非 200 的 http 状态码
         responseError: function(err) {
+            console.log(err,'response err');
             $('.loading-mask').hide();
             ////console.log('response config error');
             return $q.reject(err);
