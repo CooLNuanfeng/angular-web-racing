@@ -24,7 +24,7 @@ myApp.directive('myTd',function(){
         },
         template : '<div class="item-td">'+
                             '<p class="item-code">{{ flag=="true" ? row.codeName : value }}</p>'+
-                            '<p class="item-value">{{ flag=="true" ? row.codeValue : row.codeValue[code]}}</p>'+
+                            '<p class="item-value">{{ flag=="true" ? row.codeValue  : row.codeValue[code]}}</p>'+
                    '</div>',
         link : function(scope,elem,attr){
 
@@ -365,38 +365,38 @@ myApp.factory('initSendData',function(){
 myApp.factory('baseData',function(){
     return  {
         'tab1' : [
-            {'codeName':'大','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
-            {'codeName':'小','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
-            {'codeName':'单','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
-            {'codeName':'双','codeValue':1.988,'key':'rankingStakeList',className:'bgColor-1'},
-            {'codeName':'龙','codeValue':1.988,'key':'commonStake',className:'bgColor-1'},
-            {'codeName':'虎','codeValue':1.988,'key':'commonStake',className:'bgColor-1'},
-            {'codeName':'1','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'2','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'3','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'4','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'5','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'6','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'7','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'8','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'9','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'10','codeValue':9.94,'key':'appointStakeList'}
+            {'codeName':'大','codeValue':1.900,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'小','codeValue':1.900,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'单','codeValue':1.900,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'双','codeValue':1.900,'key':'rankingStakeList',className:'bgColor-1'},
+            {'codeName':'龙','codeValue':1.900,'key':'commonStake',className:'bgColor-1'},
+            {'codeName':'虎','codeValue':1.900,'key':'commonStake',className:'bgColor-1'},
+            {'codeName':'1','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'2','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'3','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'4','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'5','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'6','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'7','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'8','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'9','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'10','codeValue':9.00,'key':'appointStakeList'}
         ],
         'tab2' : [
-            {'codeName':'大','codeValue':1.988,'key':'rankingStakeList'},
-            {'codeName':'小','codeValue':1.988,'key':'rankingStakeList'},
-            {'codeName':'单','codeValue':1.988,'key':'rankingStakeList'},
-            {'codeName':'双','codeValue':1.988,'key':'rankingStakeList'},
-            {'codeName':'1','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'2','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'3','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'4','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'5','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'6','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'7','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'8','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'9','codeValue':9.94,'key':'appointStakeList'},
-            {'codeName':'10','codeValue':9.94,'key':'appointStakeList'}
+            {'codeName':'大','codeValue':1.900,'key':'rankingStakeList'},
+            {'codeName':'小','codeValue':1.900,'key':'rankingStakeList'},
+            {'codeName':'单','codeValue':1.900,'key':'rankingStakeList'},
+            {'codeName':'双','codeValue':1.900,'key':'rankingStakeList'},
+            {'codeName':'1','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'2','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'3','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'4','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'5','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'6','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'7','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'8','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'9','codeValue':9.00,'key':'appointStakeList'},
+            {'codeName':'10','codeValue':9.00,'key':'appointStakeList'}
         ],
         'tab3' : [
             {
