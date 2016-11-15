@@ -900,6 +900,10 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
     $scope.queryNickName = '';
     $scope.queryPage = '';
 
+    //加积分
+    $scope.addSorce = '';
+    $scope.memberId = '';
+
     function initEncrypt(url,bodyQuery){
         ////console.log(url,'url');
         var authoriza = encrypt.getAuthor(url,bodyQuery,localStorageService.get('secretKey'));
@@ -997,6 +1001,48 @@ myApp.controller('playerCtrl',['$scope','$location',function($scope,$location){
         $scope.queryPage = page;
         initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
         initData();
+    };
+
+    //加积分
+    $scope.addScoreFn = function(id){
+        $scope.memberId = id;
+        $scope.addSorce = '';
+    };
+    $scope.confirm = function(){
+        if(!$scope.addSorce ){
+            alert('积分不为空');
+            return;
+        }
+        if( isNaN(Number($scope.addSorce)) || parseInt($scope.addSorce) < 0){
+            alert('积分只能为正数');
+            return;
+        }
+        initEncrypt('http://60.205.163.65:8080/user/members/'+$scope.memberId+'/point/add',{
+            'updatePoints' : $scope.addSorce
+        });
+        $http({
+           url : 'http://60.205.163.65:8080/user/members/'+$scope.memberId+'/point/add',
+           method : 'put',
+           data : {
+               'updatePoints' : $scope.addSorce
+           }
+        }).then(function(res){
+           //console.log(res);
+           var data = res.data;
+
+           if(data.result=='ERROR'){
+               alert(data.message);
+               return;
+           }
+
+           if(data.result == 'SUCCESS'){
+               initEncrypt('http://60.205.163.65:8080/user/members?nickname='+$scope.queryNickName+'&page='+$scope.queryPage,null);
+               initData();
+           }
+
+        }, function(err){
+           alert('请求失败，请重试或缺失必要内容');
+        });
     };
 
 }]).controller('playerportCtrl',['$scope','$timeout','$http','encrypt','localStorageService',function($scope,$timeout,$http,encrypt,localStorageService){

@@ -29,6 +29,7 @@
                 <td>{{row.nickName}}</td>
                 <td>{{row.points}}</td>
                 <td>
+                    <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#myModal" ng-click="addScoreFn(row.id);">加积分</button>
                     <a ui-sref="playerDetail({'memberId':row.id})" class="btn btn-sm btn-primary">查看详情</a>
                 </td>
             </tr>
@@ -43,5 +44,29 @@
           show-first-last="true"
           paging-action="goPage(page)" >
         </paging>
+    </div>
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">加积分</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-horizontal">
+                <div class="form-group">
+                  <label class='control-label col-sm-3'>加积分: </label>
+                  <div class="col-sm-7">
+                      <input type="text" class="form-control" placeholder="请输入积分" ng-model="addSorce">
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" ng-click='confirm()' data-dismiss="modal">确定</button>
+          </div>
+        </div>
+      </div>
     </div>
 </div>
